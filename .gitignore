@@ -1,0 +1,40 @@
+# Sistema operativo e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Variaveis de ambiente
+.env
+.env.local
+frontend/.env
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Backend
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Base de dados
+database/data/
+*.sql.gz
+
+# Temporarios locais
+.tmp/

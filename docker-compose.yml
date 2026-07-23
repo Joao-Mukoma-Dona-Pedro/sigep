@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: sigep_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sigep_db
+      POSTGRES_USER: sigep_user
+      POSTGRES_PASSWORD: sigep_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - sigep_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  sigep_postgres_data:
