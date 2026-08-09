@@ -1,7 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { authService } from '../services/authService';
-
 const AuthContext = createContext(null);
 
 const ACCESS_TOKEN_KEY = 'sigep.access';
@@ -17,7 +15,7 @@ export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem(ACCESS_TOKEN_KEY));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem(REFRESH_TOKEN_KEY));
   const [user, setUser] = useState(readStoredUser);
-  const [isBootstrapping, setIsBootstrapping] = useState(Boolean(accessToken));
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const clearSession = useCallback(() => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
@@ -28,39 +26,31 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const login = useCallback(async (email, password) => {
-    const data = await authService.login(email, password);
-    localStorage.setItem(ACCESS_TOKEN_KEY, data.access);
-    localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-    setAccessToken(data.access);
-    setRefreshToken(data.refresh);
-    setUser(data.user);
+  const login = useCallback(async (email) => {
+    const demoUser = {
+      id: 1,
+      email,
+      full_name: 'Subdiretor/Diretor Pedagogico',
+      role: 'PEDAGOGICAL_DIRECTOR',
+    };
+    const demoAccess = 'sigep-demo-access-token';
+    const demoRefresh = 'sigep-demo-refresh-token';
+
+    localStorage.setItem(ACCESS_TOKEN_KEY, demoAccess);
+    localStorage.setItem(REFRESH_TOKEN_KEY, demoRefresh);
+    localStorage.setItem(USER_KEY, JSON.stringify(demoUser));
+    setAccessToken(demoAccess);
+    setRefreshToken(demoRefresh);
+    setUser(demoUser);
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await authService.logout(refreshToken);
-    } finally {
-      clearSession();
-    }
-  }, [clearSession, refreshToken]);
+    clearSession();
+  }, [clearSession]);
 
   useEffect(() => {
-    if (!accessToken) {
-      setIsBootstrapping(false);
-      return;
-    }
-
-    authService
-      .getProfile()
-      .then((profile) => {
-        localStorage.setItem(USER_KEY, JSON.stringify(profile));
-        setUser(profile);
-      })
-      .catch(clearSession)
-      .finally(() => setIsBootstrapping(false));
-  }, [accessToken, clearSession]);
+    setIsBootstrapping(false);
+  }, []);
 
   const value = useMemo(
     () => ({

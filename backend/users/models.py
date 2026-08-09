@@ -30,7 +30,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
     class Role(models.TextChoices):
-        PEDAGOGICAL_DIRECTOR = 'PEDAGOGICAL_DIRECTOR', 'Subdiretor Pedagogico'
+        PEDAGOGICAL_DIRECTOR = 'PEDAGOGICAL_DIRECTOR', 'Subdiretor/Diretor Pedagogico'
 
     username = None
     email = models.EmailField(unique=True)

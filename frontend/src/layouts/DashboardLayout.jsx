@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { moduleLinks } from '../config/modules';
 import { useAuth } from '../context/AuthContext';
 
 function DashboardLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -13,24 +15,34 @@ function DashboardLayout() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${isCollapsed ? 'is-collapsed' : ''}`}>
       <aside className="sidebar">
         <div className="sidebar-brand">
           <span className="brand-mark">S</span>
-          <div>
+          <div className="sidebar-text">
             <strong>SIGEP</strong>
             <small>Gestao Pedagogica</small>
           </div>
         </div>
 
+        <button
+          className="sidebar-toggle"
+          type="button"
+          onClick={() => setIsCollapsed((current) => !current)}
+          aria-label={isCollapsed ? 'Expandir menu' : 'Recolher menu'}
+        >
+          <i className={`bi ${isCollapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}`} aria-hidden="true" />
+        </button>
+
         <nav className="sidebar-nav" aria-label="Modulos do SIGEP">
-          <NavLink to="/dashboard" end>
-            Dashboard
+          <NavLink to="/dashboard" end title="Dashboard">
+            <i className="bi bi-speedometer2" aria-hidden="true" />
+            <span className="sidebar-text">Dashboard</span>
           </NavLink>
           {moduleLinks.map((item) => (
-            <NavLink key={item.path} to={item.path}>
-              <span className={`module-dot ${item.color}`} />
-              {item.label}
+            <NavLink key={item.path} to={item.path} title={item.label}>
+              <i className={`bi ${item.icon}`} aria-hidden="true" />
+              <span className="sidebar-text">{item.label}</span>
             </NavLink>
           ))}
         </nav>
@@ -40,26 +52,33 @@ function DashboardLayout() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Administrador</p>
-            <h2>Subdiretor Pedagogico</h2>
+            <h2>Subdiretor/Diretor Pedagogico</h2>
           </div>
           <div className="user-menu">
             <div className="user-avatar">{user?.full_name?.charAt(0) || 'S'}</div>
             <div>
-              <strong>{user?.full_name || 'Subdiretor Pedagogico'}</strong>
-              <small>{user?.email}</small>
+              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagogico'}</strong>
+              <small>{user?.email || 'admin@sigep.ao'}</small>
             </div>
-            <NavLink className="btn btn-outline-secondary btn-sm" to="/perfil">
-              Perfil
+            <NavLink className="btn btn-outline-secondary btn-sm" to="/configuracoes">
+              <i className="bi bi-gear" aria-hidden="true" />
+              Configuracoes
             </NavLink>
             <button className="btn btn-primary btn-sm" type="button" onClick={handleLogout}>
+              <i className="bi bi-box-arrow-right" aria-hidden="true" />
               Sair
             </button>
           </div>
         </header>
 
-        <section className="content-area">
+        <main className="content-area">
           <Outlet />
-        </section>
+        </main>
+
+        <footer className="app-footer">
+          <span>SIGEP - Sistema Integrado de Gestao Pedagogica</span>
+          <span>Interface preparada para integracao futura com API</span>
+        </footer>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ function AuthLayout() {
       <aside className="auth-aside" aria-label="Fluxo pedagogico">
         <div>
           <p className="eyebrow">Gestao Pedagogica</p>
-          <h1>Sistema de apoio ao Subdiretor Pedagogico</h1>
+          <h1>Sistema de apoio ao Subdiretor/Diretor Pedagogico</h1>
           <p>
             Acesso administrativo para acompanhamento de professores, turmas,
             alunos, planificacoes, aulas, PCT, ocorrencias, reunioes e relatorios.

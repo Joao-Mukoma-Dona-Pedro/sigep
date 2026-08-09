@@ -2,24 +2,25 @@
 
 SIGEP e um sistema de apoio ao Gabinete Pedagogico de escolas angolanas.
 O sistema nao e um ERP escolar completo: o foco desta versao e apoiar o
-Subdiretor Pedagogico na organizacao e acompanhamento dos processos
+Subdiretor/Diretor Pedagogico na organizacao e acompanhamento dos processos
 pedagogicos definidos no diagrama funcional de referencia.
 
-## Escopo desta etapa
+## Escopo atual
 
-- Autenticacao JWT.
-- Login e logout.
-- Alteracao de palavra-passe.
-- Recuperacao de palavra-passe com estrutura preparada.
-- Protecao de rotas no frontend.
-- Dashboard administrativo para o Subdiretor Pedagogico.
-- Navegacao base para os modulos pedagogicos.
+- Interface administrativa completa.
+- Design system reutilizavel com botoes, cards, tabelas, modais, badges, breadcrumbs e formularios.
+- Login visual/local sem ligacao ao backend.
+- Dashboard administrativo para o Subdiretor/Diretor Pedagogico.
+- Navegacao completa para os modulos pedagogicos do diagrama.
+- Paginas visuais preparadas para receber dados da API no futuro.
+
+Nesta etapa nao ha CRUD, nao ha novas APIs e o frontend nao executa chamadas ao backend.
 
 ## Perfil de acesso
 
 Nesta versao existe apenas um perfil administrativo:
 
-- Administrador: Subdiretor Pedagogico.
+- Administrador: Subdiretor/Diretor Pedagogico.
 
 A estrutura do modelo de utilizador possui campo de perfil para permitir novos
 perfis no futuro sem redesenhar a autenticacao.
@@ -27,6 +28,7 @@ perfis no futuro sem redesenhar a autenticacao.
 ## Tecnologias
 
 - Frontend: React, Bootstrap 5, React Router, Axios, Vite
+- Icones: Bootstrap Icons
 - Backend: Python, Django, Django REST Framework
 - Autenticacao: JWT com `djangorestframework-simplejwt`
 - Base de dados: PostgreSQL
@@ -63,7 +65,47 @@ Veja `docs/ESTRUTURA.md` para a funcao de cada pasta.
 Os modulos ainda nao possuem CRUD nem regras de negocio. Apenas a navegacao e a
 organizacao base foram criadas.
 
-## Backend
+## Interface frontend
+
+Principais areas criadas:
+
+```text
+frontend/src/components/ui
+frontend/src/config
+frontend/src/context
+frontend/src/layouts
+frontend/src/pages
+frontend/src/routes
+frontend/src/styles
+```
+
+Componentes reutilizaveis:
+
+- `PageHeader`
+- `StatCard`
+- `Toolbar`
+- `DataTable`
+- `Pagination`
+- `EntityModal`
+- `FakeChart`
+- `CalendarPanel`
+
+Paginas visuais:
+
+- Dashboard
+- Professores
+- Turmas
+- Alunos
+- Planificacoes
+- Controlo de Aulas
+- PCT
+- Ocorrencias
+- Tipos de Ocorrencias
+- Reunioes
+- Relatorios
+- Configuracoes
+
+## Backend preparado
 
 Endpoints de autenticacao:
 
@@ -158,7 +200,7 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-Use o e-mail do Subdiretor Pedagogico como credencial principal.
+Use o e-mail do Subdiretor/Diretor Pedagogico como credencial principal.
 
 6. Executar o backend:
 
@@ -183,9 +225,11 @@ URLs locais:
 
 - O frontend e o backend foram mantidos separados para respeitar a arquitetura
   Cliente-Servidor.
-- A autenticacao usa JWT porque combina bem com APIs REST e com frontend React.
+- A autenticacao backend usa JWT porque combina bem com APIs REST e com frontend React.
+- A autenticacao usada na interface atual e local/demo para manter navegacao funcional sem backend.
 - O utilizador autentica por e-mail, adequado a um sistema administrativo.
 - O campo `role` prepara novos perfis sem criar complexidade nesta versao.
 - As rotas privadas no frontend centralizam a protecao de acesso.
 - Os modulos seguem a organizacao do diagrama e ficam prontos para receber
   modelos, serializers, views e paginas especificas nas proximas etapas.
+- Os dados ficticios estao centralizados em `frontend/src/config/mockData.js`, para serem substituidos por chamadas API sem redesenhar as paginas.

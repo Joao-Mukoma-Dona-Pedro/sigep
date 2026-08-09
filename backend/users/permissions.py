@@ -2,7 +2,7 @@ from rest_framework.permissions import BasePermission
 
 
 class IsPedagogicalAdmin(BasePermission):
-    message = 'Acesso permitido apenas ao Subdiretor Pedagogico.'
+    message = 'Acesso permitido apenas ao Subdiretor/Diretor Pedagogico.'
 
     def has_permission(self, request, view):
         user = request.user

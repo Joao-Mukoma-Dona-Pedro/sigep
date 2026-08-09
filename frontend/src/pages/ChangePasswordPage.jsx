@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { authService } from '../services/authService';
-
 function ChangePasswordPage() {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [message, setMessage] = useState('');
@@ -24,8 +22,7 @@ function ChangePasswordPage() {
 
     setIsSubmitting(true);
     try {
-      const response = await authService.changePassword(form.currentPassword, form.newPassword);
-      setMessage(response.detail);
+      setMessage('Estrutura visual preparada para alteracao de palavra-passe.');
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch {
       setError('Nao foi possivel alterar a palavra-passe.');

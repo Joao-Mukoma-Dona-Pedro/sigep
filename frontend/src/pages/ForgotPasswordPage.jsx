@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { authService } from '../services/authService';
-
 function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -16,10 +14,7 @@ function ForgotPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await authService.requestPasswordReset(email);
-      setMessage(response.detail);
-    } catch {
-      setError('Nao foi possivel processar o pedido.');
+      setMessage(`Estrutura preparada para enviar instrucoes para ${email}.`);
     } finally {
       setIsSubmitting(false);
     }
