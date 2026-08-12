@@ -28,7 +28,7 @@ codigo React quando os modulos forem implementados.
 - `backend/disciplinas`: modulo de gestao de disciplinas.
 - `backend/planificacoes`: modulo de planificacoes pedagogicas.
 - `backend/aulas`: modulo de gestao de aulas.
-- `backend/pct`: modulo de Plano Curricular de Turma.
+- `backend/pct`: modulo de Provas Comuns Trimestrais.
 - `backend/ocorrencias`: modulo de ocorrencias pedagogicas.
 - `backend/tipos_ocorrencias`: modulo de classificacao de ocorrencias.
 - `backend/reunioes`: modulo de reunioes.

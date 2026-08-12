@@ -38,13 +38,13 @@ perfis no futuro sem redesenhar a autenticacao.
 
 ```text
 SIGEP/
-├── frontend/
-├── backend/
-├── database/
-├── docs/
-├── docker-compose.yml
-├── README.md
-└── LICENSE
+|-- frontend/
+|-- backend/
+|-- database/
+|-- docs/
+|-- docker-compose.yml
+|-- README.md
+`-- LICENSE
 ```
 
 Veja `docs/ESTRUTURA.md` para a funcao de cada pasta.
@@ -56,7 +56,7 @@ Veja `docs/ESTRUTURA.md` para a funcao de cada pasta.
 - Alunos
 - Planificacoes
 - Controlo de Aulas
-- PCT
+- PCT (Provas Comuns Trimestrais)
 - Ocorrencias
 - Tipos de Ocorrencias
 - Reunioes
@@ -98,7 +98,7 @@ Paginas visuais:
 - Alunos
 - Planificacoes
 - Controlo de Aulas
-- PCT
+- PCT (Provas Comuns Trimestrais)
 - Ocorrencias
 - Tipos de Ocorrencias
 - Reunioes

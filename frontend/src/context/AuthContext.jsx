@@ -1,56 +1,82 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import {
+  clearSessionStorage,
+  getProfile,
+  getStoredSession,
+  login as loginRequest,
+  logout as logoutRequest,
+  saveSession,
+} from '../services/authService';
+
 const AuthContext = createContext(null);
 
 const ACCESS_TOKEN_KEY = 'sigep.access';
 const REFRESH_TOKEN_KEY = 'sigep.refresh';
-const USER_KEY = 'sigep.user';
-
-function readStoredUser() {
-  const value = localStorage.getItem(USER_KEY);
-  return value ? JSON.parse(value) : null;
-}
 
 export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem(ACCESS_TOKEN_KEY));
   const [refreshToken, setRefreshToken] = useState(() => localStorage.getItem(REFRESH_TOKEN_KEY));
-  const [user, setUser] = useState(readStoredUser);
+  const [user, setUser] = useState(() => getStoredSession().user);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
   const clearSession = useCallback(() => {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    clearSessionStorage();
     setAccessToken(null);
     setRefreshToken(null);
     setUser(null);
   }, []);
 
-  const login = useCallback(async (email) => {
-    const demoUser = {
-      id: 1,
-      email,
-      full_name: 'Subdiretor/Diretor Pedagogico',
-      role: 'PEDAGOGICAL_DIRECTOR',
-    };
-    const demoAccess = 'sigep-demo-access-token';
-    const demoRefresh = 'sigep-demo-refresh-token';
+  const login = useCallback(async (email, password) => {
+    const session = await loginRequest(email, password);
 
-    localStorage.setItem(ACCESS_TOKEN_KEY, demoAccess);
-    localStorage.setItem(REFRESH_TOKEN_KEY, demoRefresh);
-    localStorage.setItem(USER_KEY, JSON.stringify(demoUser));
-    setAccessToken(demoAccess);
-    setRefreshToken(demoRefresh);
-    setUser(demoUser);
+    saveSession(session);
+    setAccessToken(session.access);
+    setRefreshToken(session.refresh);
+    setUser(session.user);
   }, []);
 
   const logout = useCallback(async () => {
+    try {
+      await logoutRequest(refreshToken);
+    } catch {
+      // A sessao local deve ser encerrada mesmo que o token ja esteja expirado.
+    }
     clearSession();
-  }, [clearSession]);
+  }, [clearSession, refreshToken]);
 
   useEffect(() => {
-    setIsBootstrapping(false);
-  }, []);
+    let isMounted = true;
+
+    async function bootstrapSession() {
+      if (!accessToken) {
+        setIsBootstrapping(false);
+        return;
+      }
+
+      try {
+        const profile = await getProfile();
+        if (isMounted) {
+          setUser(profile);
+          localStorage.setItem('sigep.user', JSON.stringify(profile));
+        }
+      } catch {
+        if (isMounted) {
+          clearSession();
+        }
+      } finally {
+        if (isMounted) {
+          setIsBootstrapping(false);
+        }
+      }
+    }
+
+    bootstrapSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken, clearSession]);
 
   const value = useMemo(
     () => ({

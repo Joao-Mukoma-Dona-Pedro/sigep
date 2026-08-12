@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'turmas',
     'disciplinas',
     'planificacoes',
-    'aulas',
+    'aulas.apps.AulasConfig',
     'pct',
     'ocorrencias',
     'tipos_ocorrencias',
