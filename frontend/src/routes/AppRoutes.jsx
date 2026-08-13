@@ -25,6 +25,7 @@ import ProfessoresPage from '../pages/ProfessoresPage';
 import ProfilePage from '../pages/ProfilePage';
 import ReportsPage from '../pages/ReportsPage';
 import SettingsPage from '../pages/SettingsPage';
+import TiposOcorrenciaPage from '../pages/TiposOcorrenciaPage';
 import TurmaDetailPage from '../pages/TurmaDetailPage';
 import TurmasPage from '../pages/TurmasPage';
 
@@ -56,7 +57,7 @@ function AppRoutes() {
           <Route path="/pct" element={<PctPage />} />
           <Route path="/pct/:id" element={<PctDetailPage />} />
           <Route path="/ocorrencias" element={<ManagementPage config={pageConfigs.ocorrencias} />} />
-          <Route path="/tipos-ocorrencias" element={<ManagementPage config={pageConfigs.tiposOcorrencias} />} />
+          <Route path="/tipos-ocorrencias" element={<TiposOcorrenciaPage />} />
           <Route path="/reunioes" element={<MeetingsPage />} />
           <Route path="/relatorios" element={<ReportsPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
