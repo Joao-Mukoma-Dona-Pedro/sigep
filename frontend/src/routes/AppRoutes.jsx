@@ -18,6 +18,8 @@ import ManagementPage from '../pages/ManagementPage';
 import MeetingsPage from '../pages/MeetingsPage';
 import PlanificacaoDetailPage from '../pages/PlanificacaoDetailPage';
 import PlanificacoesPage from '../pages/PlanificacoesPage';
+import PctDetailPage from '../pages/PctDetailPage';
+import PctPage from '../pages/PctPage';
 import ProfessorDetailPage from '../pages/ProfessorDetailPage';
 import ProfessoresPage from '../pages/ProfessoresPage';
 import ProfilePage from '../pages/ProfilePage';
@@ -51,7 +53,8 @@ function AppRoutes() {
           <Route path="/planificacoes/:id" element={<PlanificacaoDetailPage />} />
           <Route path="/controlo-aulas" element={<ControloAulasPage />} />
           <Route path="/controlo-aulas/:id" element={<ControloAulaDetailPage />} />
-          <Route path="/pct" element={<ManagementPage config={pageConfigs.pct} />} />
+          <Route path="/pct" element={<PctPage />} />
+          <Route path="/pct/:id" element={<PctDetailPage />} />
           <Route path="/ocorrencias" element={<ManagementPage config={pageConfigs.ocorrencias} />} />
           <Route path="/tipos-ocorrencias" element={<ManagementPage config={pageConfigs.tiposOcorrencias} />} />
           <Route path="/reunioes" element={<MeetingsPage />} />
