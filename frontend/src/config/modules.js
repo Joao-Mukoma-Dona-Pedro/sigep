@@ -5,6 +5,7 @@ export const moduleLinks = [
   { path: '/planificacoes', label: 'Planificacoes', icon: 'bi-journal-check', color: 'purple' },
   { path: '/controlo-aulas', label: 'Controlo de Aulas', icon: 'bi-calendar2-check', color: 'orange' },
   { path: '/pct', label: 'PCT', icon: 'bi-file-earmark-text', color: 'green' },
+  { path: '/analise-pct', label: 'Analise PCT', icon: 'bi-graph-up-arrow', color: 'cyan' },
   { path: '/ocorrencias', label: 'Ocorrencias', icon: 'bi-exclamation-triangle', color: 'red' },
   { path: '/tipos-ocorrencias', label: 'Tipos de Ocorrencias', icon: 'bi-tags', color: 'yellow' },
   { path: '/reunioes', label: 'Reunioes', icon: 'bi-people', color: 'pink' },

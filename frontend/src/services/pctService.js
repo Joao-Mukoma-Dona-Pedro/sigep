@@ -53,3 +53,36 @@ export async function listPCTLecionacaoOptions() {
   const response = await api.get('/pct/lecionacoes/');
   return response.data || [];
 }
+
+export async function listPCTAlunos(id) {
+  const response = await api.get(`/pct/${id}/alunos/`);
+  return response.data || [];
+}
+
+export async function listPCTResultados(id) {
+  const response = await api.get(`/pct/${id}/resultados/`);
+  return response.data || [];
+}
+
+export async function lancarNotasPCT(id, resultados) {
+  const response = await api.post(`/pct/${id}/lancar-notas/`, { resultados });
+  return response.data;
+}
+
+export async function previewImportacaoPCT(id, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await api.post(`/pct/${id}/importar-preview/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+}
+
+export async function confirmarImportacaoPCT(id, rows) {
+  const response = await api.post(`/pct/${id}/importar-confirmar/`, { rows });
+  return response.data;
+}

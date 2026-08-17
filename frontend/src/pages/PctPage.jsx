@@ -58,6 +58,24 @@ function formatTrimestre(value) {
   return labels[value] || '-';
 }
 
+function formatResultadosEstado(value) {
+  const labels = {
+    NENHUM: 'Nao lancados',
+    PARCIAL: 'Parcial',
+    COMPLETO: 'Completo',
+  };
+  return labels[value] || '-';
+}
+
+function getResultadosBadge(value) {
+  const classes = {
+    NENHUM: 'badge-warning',
+    PARCIAL: 'badge-info',
+    COMPLETO: 'badge-success',
+  };
+  return classes[value] || 'badge-info';
+}
+
 function getLecionacaoLabel(lecionacao) {
   return `${lecionacao.professor} - ${lecionacao.disciplina} - ${lecionacao.turma} (${lecionacao.ano_lectivo})`;
 }
@@ -492,6 +510,7 @@ function PctPage() {
                 <th>Trimestre</th>
                 <th>Data de Aplicacao</th>
                 <th>Nota Lancada</th>
+                <th>Resultados</th>
                 <th>Observacao</th>
                 <th className="text-end">Acoes</th>
               </tr>
@@ -499,13 +518,13 @@ function PctPage() {
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan="9" className="text-center text-muted py-4">A carregar PCT...</td>
+                  <td colSpan="10" className="text-center text-muted py-4">A carregar PCT...</td>
                 </tr>
               )}
 
               {!isLoading && pcts.length === 0 && (
                 <tr>
-                  <td colSpan="9" className="text-center text-muted py-4">Nenhuma PCT encontrada.</td>
+                  <td colSpan="10" className="text-center text-muted py-4">Nenhuma PCT encontrada.</td>
                 </tr>
               )}
 
@@ -521,6 +540,14 @@ function PctPage() {
                     <span className={`sigep-badge ${pct.nota_lancada ? 'badge-success' : 'badge-warning'}`}>
                       {pct.nota_lancada ? 'Sim' : 'Nao'}
                     </span>
+                  </td>
+                  <td>
+                    <span className={`sigep-badge ${getResultadosBadge(pct.resultados_estado)}`}>
+                      {formatResultadosEstado(pct.resultados_estado)}
+                    </span>
+                    <div className="small text-muted">
+                      {pct.resultados_count || 0}/{pct.alunos_count || 0}
+                    </div>
                   </td>
                   <td>{pct.observacao || '-'}</td>
                   <td>

@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -32,3 +33,33 @@ class PCT(models.Model):
 
     def __str__(self):
         return f'{self.lecionacao} - {self.get_trimestre_display()}'
+
+
+class ResultadoPCT(models.Model):
+    pct = models.ForeignKey(
+        PCT,
+        on_delete=models.PROTECT,
+        related_name='resultados',
+    )
+    aluno = models.ForeignKey(
+        'alunos.Aluno',
+        on_delete=models.PROTECT,
+        related_name='resultados_pct',
+    )
+    nota = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(20)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['aluno__numero', 'aluno__nome']
+        verbose_name = 'Resultado PCT'
+        verbose_name_plural = 'Resultados PCT'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['pct', 'aluno'],
+                name='unique_resultado_pct_aluno',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.pct} - {self.aluno}: {self.nota}'

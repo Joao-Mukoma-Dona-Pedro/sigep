@@ -16,8 +16,11 @@ import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import LoginPage from '../pages/LoginPage';
 import ManagementPage from '../pages/ManagementPage';
 import MeetingsPage from '../pages/MeetingsPage';
+import OcorrenciaDetailPage from '../pages/OcorrenciaDetailPage';
+import OcorrenciasPage from '../pages/OcorrenciasPage';
 import PlanificacaoDetailPage from '../pages/PlanificacaoDetailPage';
 import PlanificacoesPage from '../pages/PlanificacoesPage';
+import PctAnalysisPage from '../pages/PctAnalysisPage';
 import PctDetailPage from '../pages/PctDetailPage';
 import PctPage from '../pages/PctPage';
 import ProfessorDetailPage from '../pages/ProfessorDetailPage';
@@ -56,7 +59,9 @@ function AppRoutes() {
           <Route path="/controlo-aulas/:id" element={<ControloAulaDetailPage />} />
           <Route path="/pct" element={<PctPage />} />
           <Route path="/pct/:id" element={<PctDetailPage />} />
-          <Route path="/ocorrencias" element={<ManagementPage config={pageConfigs.ocorrencias} />} />
+          <Route path="/analise-pct" element={<PctAnalysisPage />} />
+          <Route path="/ocorrencias" element={<OcorrenciasPage />} />
+          <Route path="/ocorrencias/:id" element={<OcorrenciaDetailPage />} />
           <Route path="/tipos-ocorrencias" element={<TiposOcorrenciaPage />} />
           <Route path="/reunioes" element={<MeetingsPage />} />
           <Route path="/relatorios" element={<ReportsPage />} />

@@ -772,6 +772,86 @@ a {
   gap: 16px;
 }
 
+.analysis-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.analysis-mode-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid var(--sigep-line);
+  border-radius: var(--sigep-radius);
+  color: var(--sigep-secondary);
+  background: var(--sigep-white);
+  font-weight: 850;
+}
+
+.analysis-mode-button.active,
+.analysis-mode-button:hover {
+  color: var(--sigep-primary);
+  background: #edf5fc;
+}
+
+.analysis-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.analysis-chart-card {
+  overflow: hidden;
+}
+
+.analysis-line-chart {
+  width: 100%;
+  min-height: 220px;
+}
+
+.chart-axis {
+  stroke: var(--sigep-line);
+  stroke-width: 2;
+}
+
+.line-series {
+  fill: none;
+  stroke: var(--sigep-primary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.line-point {
+  fill: var(--sigep-primary);
+}
+
+.chart-label {
+  fill: var(--sigep-muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.analysis-bars {
+  display: grid;
+  gap: 12px;
+}
+
+.analysis-bar-row {
+  display: grid;
+  grid-template-columns: minmax(96px, 160px) minmax(120px, 1fr) 72px;
+  align-items: center;
+  gap: 12px;
+}
+
+.analysis-bar-row span,
+.analysis-bar-row strong {
+  font-size: 0.92rem;
+}
+
 @media (max-width: 1180px) {
   .sigep-toolbar {
     grid-template-columns: 1fr 1fr;
@@ -828,6 +908,8 @@ a {
 @media (max-width: 640px) {
   .sigep-toolbar,
   .chart-row,
+  .analysis-mode-switch,
+  .analysis-bar-row,
   .sigep-pagination {
     grid-template-columns: 1fr;
   }

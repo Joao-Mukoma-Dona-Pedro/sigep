@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import PCT
+from .models import PCT, ResultadoPCT
 
 
 @admin.register(PCT)
@@ -40,3 +40,34 @@ class PCTAdmin(admin.ModelAdmin):
     @admin.display(description='Ano Lectivo')
     def ano_lectivo(self, obj):
         return obj.lecionacao.ano_lectivo
+
+
+@admin.register(ResultadoPCT)
+class ResultadoPCTAdmin(admin.ModelAdmin):
+    list_display = ('aluno', 'pct', 'professor', 'disciplina', 'turma', 'trimestre', 'nota')
+    list_filter = ('pct__trimestre', 'pct__lecionacao__ano_lectivo', 'pct__lecionacao__disciplina')
+    search_fields = (
+        'aluno__nome',
+        'pct__lecionacao__professor__nome',
+        'pct__lecionacao__disciplina__nome',
+        'pct__lecionacao__turma__classe',
+        'pct__lecionacao__turma__sala',
+    )
+    autocomplete_fields = ('pct', 'aluno')
+    ordering = ('pct', 'aluno__numero', 'aluno__nome')
+
+    @admin.display(description='Professor')
+    def professor(self, obj):
+        return obj.pct.lecionacao.professor
+
+    @admin.display(description='Disciplina')
+    def disciplina(self, obj):
+        return obj.pct.lecionacao.disciplina
+
+    @admin.display(description='Turma')
+    def turma(self, obj):
+        return obj.pct.lecionacao.turma
+
+    @admin.display(description='Trimestre')
+    def trimestre(self, obj):
+        return obj.pct.get_trimestre_display()
