@@ -24,7 +24,7 @@ export const plans = [
 
 export const lessons = [
   { id: 'AUL-001', professor: 'Ana Domingos', data: '2026-02-18', aula: 'Assistida', estado: 'Concluido' },
-  { id: 'AUL-002', professor: 'Carlos Mateus', data: '2026-02-19', aula: 'Nao assistida', estado: 'Pendente' },
+  { id: 'AUL-002', professor: 'Carlos Mateus', data: '2026-02-19', aula: 'Não assistida', estado: 'Pendente' },
   { id: 'AUL-003', professor: 'Helena Paulo', data: '2026-02-20', aula: 'Assistida', estado: 'Concluido' },
 ];
 
@@ -36,20 +36,20 @@ export const pct = [
 
 export const occurrences = [
   { id: 'OCR-001', aluno: 'Mauro Fernandes', data: '2026-02-12', tipo: 'Disciplinar', medida: 'Advertencia', registadaPor: 'Ana Domingos' },
-  { id: 'OCR-002', aluno: 'Lina Pedro', data: '2026-02-14', tipo: 'Academica', medida: 'Acompanhamento', registadaPor: 'Carlos Mateus' },
+  { id: 'OCR-002', aluno: 'Lina Pedro', data: '2026-02-14', tipo: 'Académica', medida: 'Acompanhamento', registadaPor: 'Carlos Mateus' },
   { id: 'OCR-003', aluno: 'Edson Costa', data: '2026-02-18', tipo: 'Comportamental', medida: 'Reuniao com encarregado', registadaPor: 'Helena Paulo' },
 ];
 
 export const occurrenceTypes = [
   { id: 'TPO-001', descricao: 'Disciplinar', categoria: 'Disciplinar', estado: 'Ativo' },
-  { id: 'TPO-002', descricao: 'Academica', categoria: 'Academica', estado: 'Ativo' },
+  { id: 'TPO-002', descricao: 'Académica', categoria: 'Académica', estado: 'Ativo' },
   { id: 'TPO-003', descricao: 'Comportamental', categoria: 'Comportamental', estado: 'Ativo' },
 ];
 
 export const meetings = [
   { id: 'REU-001', data: '2026-02-26', assunto: 'Conselho pedagogico', participantes: 'Coordenadores', estado: 'Agendada' },
   { id: 'REU-002', data: '2026-03-04', assunto: 'Avaliacao de PCT', participantes: 'Professores', estado: 'Pendente' },
-  { id: 'REU-003', data: '2026-03-12', assunto: 'Ocorrencias por turma', participantes: 'Direcao', estado: 'Concluida' },
+  { id: 'REU-003', data: '2026-03-12', assunto: 'Ocorrências por turma', participantes: 'Direção', estado: 'Concluída' },
 ];
 
 export const activities = [

@@ -7,13 +7,13 @@ import { getOcorrencia } from '../services/ocorrenciaService';
 const categorias = {
   DISCIPLINAR: 'Disciplinar',
   COMPORTAMENTAL: 'Comportamental',
-  ACADEMICA: 'Academica',
+  ACADEMICA: 'Académica',
   OUTROS: 'Outros',
 };
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -106,7 +106,7 @@ function OcorrenciaDetailPage() {
         title={ocorrencia?.aluno_info?.nome || 'Ocorrencia'}
         eyebrow="Detalhes"
         description="Informacoes da ocorrencia registada para o aluno."
-        breadcrumbs={['Ocorrencias', 'Detalhes']}
+        breadcrumbs={['Ocorrências', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/ocorrencias">
             <i className="bi bi-arrow-left" />
@@ -150,7 +150,7 @@ function OcorrenciaDetailPage() {
 
           <TextPanel title="Descricao" text={ocorrencia.descricao} />
           <TextPanel title="Medida Tomada" text={ocorrencia.medida_tomada} />
-          <TextPanel title="Observacao" text={ocorrencia.observacao} />
+          <TextPanel title="Observação" text={ocorrencia.observacao} />
 
           <section className="panel-card">
             <div className="panel-card-header">

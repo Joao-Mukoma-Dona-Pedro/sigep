@@ -12,7 +12,11 @@ import ControloAulaDetailPage from '../pages/ControloAulaDetailPage';
 import ControloAulasPage from '../pages/ControloAulasPage';
 import DashboardPage from '../pages/DashboardPage';
 import DetailPage from '../pages/DetailPage';
+import DisciplinaDetailPage from '../pages/DisciplinaDetailPage';
+import DisciplinasPage from '../pages/DisciplinasPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
+import LecionacaoDetailPage from '../pages/LecionacaoDetailPage';
+import LecionacoesPage from '../pages/LecionacoesPage';
 import LoginPage from '../pages/LoginPage';
 import ManagementPage from '../pages/ManagementPage';
 import MeetingsPage from '../pages/MeetingsPage';
@@ -49,10 +53,14 @@ function AppRoutes() {
           <Route path="/alterar-palavra-passe" element={<ChangePasswordPage />} />
           <Route path="/professores" element={<ProfessoresPage />} />
           <Route path="/professores/:id" element={<ProfessorDetailPage />} />
+          <Route path="/disciplinas" element={<DisciplinasPage />} />
+          <Route path="/disciplinas/:id" element={<DisciplinaDetailPage />} />
           <Route path="/turmas" element={<TurmasPage />} />
           <Route path="/turmas/:id" element={<TurmaDetailPage />} />
           <Route path="/alunos" element={<AlunosPage />} />
           <Route path="/alunos/:id" element={<AlunoDetailPage />} />
+          <Route path="/lecionacoes" element={<LecionacoesPage />} />
+          <Route path="/lecionacoes/:id" element={<LecionacaoDetailPage />} />
           <Route path="/planificacoes" element={<PlanificacoesPage />} />
           <Route path="/planificacoes/:id" element={<PlanificacaoDetailPage />} />
           <Route path="/controlo-aulas" element={<ControloAulasPage />} />

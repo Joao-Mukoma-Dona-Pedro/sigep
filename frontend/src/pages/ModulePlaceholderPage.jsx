@@ -7,7 +7,7 @@ function ModulePlaceholderPage({ title }) {
     <div className="page-stack">
       <section className="page-header">
         <div>
-          <p className="eyebrow">Modulo Pedagogico</p>
+          <p className="eyebrow">Módulo Pedagógico</p>
           <h1>{title}</h1>
         </div>
         <span className={`module-dot ${module?.color || 'blue'}`} />

@@ -26,7 +26,7 @@ function LoginPage() {
       await login(form.email, form.password);
       navigate(redirectTo, { replace: true });
     } catch {
-      setError('E-mail ou palavra-passe invalida.');
+      setError('E-mail ou palavra-passe inválida.');
     } finally {
       setIsSubmitting(false);
     }

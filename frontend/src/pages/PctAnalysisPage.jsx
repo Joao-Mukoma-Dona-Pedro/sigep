@@ -30,7 +30,7 @@ const initialFilters = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -42,10 +42,10 @@ function getErrorMessage(error) {
     if (data?.detail) return data.detail;
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os filtros da analise.';
+    return firstMessage || 'Verifique os filtros da análise.';
   }
 
-  return 'Ocorreu um erro inesperado ao carregar a analise.';
+  return 'Ocorreu um erro inesperado ao carregar a análise.';
 }
 
 function formatNumber(value) {
@@ -82,7 +82,7 @@ function StatPanel({ label, value, icon = 'bi-graph-up' }) {
 function EmptyAnalysis() {
   return (
     <section className="empty-state">
-      <h2>Selecione os filtros e execute a analise.</h2>
+      <h2>Selecione os filtros e execute a análise.</h2>
       <p className="mb-0 text-muted">
         Os indicadores serao calculados com dados reais de Resultados PCT.
       </p>
@@ -202,7 +202,7 @@ function SummaryCards({ summary, mode }) {
     items.push(
       { label: 'Alunos esperados', value: formatNumber(summary.alunos_esperados), icon: 'bi-people' },
       { label: 'Alunos sem resultado', value: formatNumber(summary.alunos_sem_resultado), icon: 'bi-person-dash' },
-      { label: 'Lancamento', value: formatPercent(summary.percentual_lancamento), icon: 'bi-percent' },
+      { label: 'Lançamento', value: formatPercent(summary.percentual_lancamento), icon: 'bi-percent' },
     );
   }
 
@@ -562,15 +562,15 @@ function PctAnalysisPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Analise de Desempenho PCT"
+        title="Análise de Desempenho PCT"
         eyebrow="Provas Comuns Trimestrais"
-        description="Analise administrativa dos resultados das PCT por aluno, turma, classe e ano lectivo."
-        breadcrumbs={['Analise PCT']}
+        description="Análise administrativa dos resultados das PCT por aluno, turma, classe e ano lectivo."
+        breadcrumbs={['Análise PCT']}
       />
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <section className="analysis-mode-switch" aria-label="Nivel de analise">
+      <section className="analysis-mode-switch" aria-label="Nível de análise">
         {modes.map((item) => (
           <button
             className={`analysis-mode-button ${mode === item.value ? 'active' : ''}`}
@@ -588,11 +588,11 @@ function PctAnalysisPage() {
         <div className="panel-card-header">
           <div>
             <h2>Filtros</h2>
-            <p className="mb-0 text-muted">Selecione o contexto pedagogico da analise.</p>
+            <p className="mb-0 text-muted">Selecione o contexto pedagógico da análise.</p>
           </div>
           <button className="btn btn-primary" type="submit" disabled={isLoading || isLoadingOptions}>
             <i className="bi bi-play-circle" />
-            {isLoading ? 'A analisar...' : 'Executar Analise'}
+            {isLoading ? 'A analisar...' : 'Executar Análise'}
           </button>
         </div>
 
@@ -672,7 +672,7 @@ function PctAnalysisPage() {
       {!analysis && !isLoading && <EmptyAnalysis />}
       {isLoading && (
         <section className="empty-state">
-          <h2>A carregar analise...</h2>
+          <h2>A carregar análise...</h2>
         </section>
       )}
 
@@ -689,7 +689,7 @@ function PctAnalysisPage() {
           ) : (
             <section className="empty-state">
               <h2>Sem resultados para os filtros selecionados.</h2>
-              <p className="mb-0 text-muted">A analise nao considera alunos sem nota como zero.</p>
+              <p className="mb-0 text-muted">A análise não considera alunos sem nota como zero.</p>
             </section>
           )}
         </>

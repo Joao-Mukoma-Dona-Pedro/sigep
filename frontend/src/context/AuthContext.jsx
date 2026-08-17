@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
     try {
       await logoutRequest(refreshToken);
     } catch {
-      // A sessao local deve ser encerrada mesmo que o token ja esteja expirado.
+      // A sessão local deve ser encerrada mesmo que o token já esteja expirado.
     }
     clearSession();
   }, [clearSession, refreshToken]);

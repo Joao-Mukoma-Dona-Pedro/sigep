@@ -10,7 +10,7 @@ const statusBadge = (value) => {
 export const pageConfigs = {
   professores: {
     title: 'Professores',
-    eyebrow: 'Gestao pedagogica',
+    eyebrow: 'Gestão pedagógica',
     description: 'Interface preparada para registo, consulta e acompanhamento pedagogico dos professores.',
     actionLabel: 'Novo Professor',
     searchPlaceholder: 'Pesquisar por nome, disciplina ou e-mail',
@@ -100,7 +100,7 @@ export const pageConfigs = {
     },
   },
   planificacoes: {
-    title: 'Planificacoes',
+    title: 'Planificações',
     eyebrow: 'Planeamento pedagogico',
     description: 'Interface preparada para entregas trimestrais de planificacoes.',
     actionLabel: 'Nova Planificacao',
@@ -135,7 +135,7 @@ export const pageConfigs = {
     rows: lessons,
     filters: [
       { label: 'Estado', options: ['Concluido', 'Pendente'] },
-      { label: 'Aula', options: ['Assistida', 'Nao assistida'] },
+      { label: 'Aula', options: ['Assistida', 'Não assistida'] },
     ],
     columns: [
       { key: 'id', label: 'ID' },
@@ -176,14 +176,14 @@ export const pageConfigs = {
     },
   },
   ocorrencias: {
-    title: 'Ocorrencias',
+    title: 'Ocorrências',
     eyebrow: 'Registo pedagogico',
     description: 'Tabela preparada para ocorrencias dos alunos, medidas tomadas e responsavel pelo registo.',
     actionLabel: 'Nova Ocorrencia',
     searchPlaceholder: 'Pesquisar por aluno, tipo ou professor',
     rows: occurrences,
     filters: [
-      { label: 'Tipo', options: ['Disciplinar', 'Academica', 'Comportamental'] },
+      { label: 'Tipo', options: ['Disciplinar', 'Académica', 'Comportamental'] },
       { label: 'Medida', options: ['Advertencia', 'Acompanhamento', 'Reuniao com encarregado'] },
     ],
     columns: [
@@ -199,21 +199,21 @@ export const pageConfigs = {
       title: 'Nova Ocorrencia',
       fields: [
         { name: 'aluno', label: 'Aluno' },
-        { name: 'tipo', label: 'Tipo', type: 'select', options: ['Disciplinar', 'Academica', 'Comportamental'] },
+        { name: 'tipo', label: 'Tipo', type: 'select', options: ['Disciplinar', 'Académica', 'Comportamental'] },
         { name: 'data', label: 'Data', type: 'date' },
         { name: 'medida', label: 'Medida tomada' },
       ],
     },
   },
   tiposOcorrencias: {
-    title: 'Tipos de Ocorrencias',
+    title: 'Tipos de Ocorrências',
     eyebrow: 'Classificacao',
     description: 'Pagina preparada para gerir categorias e descricoes de ocorrencias.',
     actionLabel: 'Novo Tipo',
     searchPlaceholder: 'Pesquisar por descricao ou categoria',
     rows: occurrenceTypes,
     filters: [
-      { label: 'Categoria', options: ['Disciplinar', 'Academica', 'Comportamental'] },
+      { label: 'Categoria', options: ['Disciplinar', 'Académica', 'Comportamental'] },
       { label: 'Estado', options: ['Ativo', 'Inativo'] },
     ],
     columns: [
@@ -227,7 +227,7 @@ export const pageConfigs = {
       title: 'Novo Tipo de Ocorrencia',
       fields: [
         { name: 'descricao', label: 'Descricao' },
-        { name: 'categoria', label: 'Categoria', type: 'select', options: ['Disciplinar', 'Academica', 'Comportamental'] },
+        { name: 'categoria', label: 'Categoria', type: 'select', options: ['Disciplinar', 'Académica', 'Comportamental'] },
         { name: 'estado', label: 'Estado', type: 'select', options: ['Ativo', 'Inativo'] },
       ],
     },

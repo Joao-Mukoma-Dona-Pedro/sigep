@@ -10,7 +10,7 @@ function ProfilePage() {
       <section className="page-header">
         <div>
           <p className="eyebrow">Perfil</p>
-          <h1>{user?.full_name || 'Subdiretor/Diretor Pedagogico'}</h1>
+          <h1>{user?.full_name || 'Subdiretor/Diretor Pedagógico'}</h1>
         </div>
         <Link className="btn btn-primary" to="/alterar-palavra-passe">
           Alterar palavra-passe
@@ -25,11 +25,11 @@ function ProfilePage() {
           </div>
           <div>
             <dt>Perfil de acesso</dt>
-            <dd>Subdiretor/Diretor Pedagogico</dd>
+            <dd>Subdiretor/Diretor Pedagógico</dd>
           </div>
           <div>
             <dt>Ambito</dt>
-            <dd>Gabinete Pedagogico</dd>
+            <dd>Gabinete Pedagógico</dd>
           </div>
         </dl>
       </section>

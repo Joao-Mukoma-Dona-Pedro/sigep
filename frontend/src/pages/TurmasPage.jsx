@@ -24,7 +24,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -36,7 +36,7 @@ function getErrorMessage(error) {
   }
 
   if (error.response.status === 409) {
-    return error.response.data?.detail || 'Nao foi possivel eliminar esta turma.';
+    return error.response.data?.detail || 'Não foi possível eliminar esta turma.';
   }
 
   if (error.response.status === 400) {
@@ -211,7 +211,7 @@ function TurmaFormModal({
                   </select>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observacao</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -390,7 +390,7 @@ function TurmasPage() {
     <div className="page-stack">
       <PageHeader
         title="Turmas"
-        eyebrow="Gestao pedagogica"
+        eyebrow="Gestão pedagógica"
         description="Organizacao das turmas, periodos, salas e diretores de turma."
         breadcrumbs={['Turmas']}
         actions={(

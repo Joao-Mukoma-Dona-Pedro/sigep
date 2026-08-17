@@ -25,7 +25,7 @@ function ChangePasswordPage() {
       setMessage('Estrutura visual preparada para alteracao de palavra-passe.');
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch {
-      setError('Nao foi possivel alterar a palavra-passe.');
+      setError('Não foi possível alterar a palavra-passe.');
     } finally {
       setIsSubmitting(false);
     }

@@ -2,7 +2,7 @@ import PageHeader from '../components/ui/PageHeader';
 
 const reports = [
   { title: 'Relatorio por turma', icon: 'bi-grid-3x3-gap', description: 'Resumo de alunos, ocorrencias, aulas e PCT por turma.' },
-  { title: 'Relatorio por professor', icon: 'bi-person-badge', description: 'Planificacoes, aulas assistidas, PCT e historico pedagogico.' },
+  { title: 'Relatório por professor', icon: 'bi-person-badge', description: 'Planificações, aulas assistidas, PCT e histórico pedagógico.' },
   { title: 'Relatorio por disciplina', icon: 'bi-journal-bookmark', description: 'Indicadores por disciplina, classe e trimestre.' },
 ];
 

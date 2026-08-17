@@ -3,6 +3,11 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from alunos.models import Aluno
+from ocorrencias.models import Ocorrencia
+from professores.models import Professor
+from turmas.models import Turma
+
 from .models import TipoOcorrencia
 
 
@@ -179,10 +184,23 @@ class TipoOcorrenciaAPITests(APITestCase):
     def test_bloqueio_de_eliminacao_futura_relacao(self):
         self.authenticate()
         tipo = self.create_tipo()
+        professor = Professor.objects.create(nome='Ana Maria', email='ana.tipo@sigep.local')
+        turma = Turma.objects.create(
+            classe='10',
+            sala='A',
+            periodo=Turma.Periodo.MANHA,
+            ano_lectivo='2026',
+        )
+        aluno = Aluno.objects.create(turma=turma, numero=1, nome='Maria Jose')
+        Ocorrencia.objects.create(
+            aluno=aluno,
+            tipo=tipo,
+            data_ocorrencia='2026-03-20',
+            descricao='Ocorrência disciplinar registada.',
+            registada_por=professor,
+        )
 
-        class OcorrenciasRelacionadas:
-            def exists(self):
-                return True
+        response = self.client.delete(reverse('tipos-ocorrencia-detail', args=[tipo.id]))
 
-        tipo.ocorrencias = OcorrenciasRelacionadas()
-        self.assertTrue(tipo.ocorrencias.exists())
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(TipoOcorrencia.objects.filter(id=tipo.id).exists())

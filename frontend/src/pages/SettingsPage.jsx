@@ -7,10 +7,10 @@ function SettingsPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Configuracoes"
+        title="Configurações"
         eyebrow="Perfil e preferencias"
-        description="Area visual preparada para configuracoes do Gabinete Pedagogico."
-        breadcrumbs={['Configuracoes']}
+        description="Área visual preparada para configurações do Gabinete Pedagógico."
+        breadcrumbs={['Configurações']}
       />
       <div className="settings-layout">
         <section className="panel-card">
@@ -18,12 +18,12 @@ function SettingsPage() {
           <div className="profile-summary">
             <div className="user-avatar large">{user?.full_name?.charAt(0) || 'S'}</div>
             <div>
-              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagogico'}</strong>
+              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagógico'}</strong>
               <span>{user?.email || 'admin@sigep.ao'}</span>
             </div>
           </div>
           <div className="row g-3 mt-2">
-            <div className="col-md-6"><input className="form-control" defaultValue="Subdiretor/Diretor Pedagogico" /></div>
+            <div className="col-md-6"><input className="form-control" defaultValue="Subdiretor/Diretor Pedagógico" /></div>
             <div className="col-md-6"><input className="form-control" defaultValue={user?.email || 'admin@sigep.ao'} /></div>
           </div>
         </section>

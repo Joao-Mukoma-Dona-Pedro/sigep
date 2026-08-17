@@ -3,7 +3,9 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from aulas.models import ControloAula
 from disciplinas.models import Disciplina
+from pct.models import PCT
 from turmas.models import Turma
 
 from .models import Lecionacao, Professor
@@ -155,3 +157,169 @@ class ProfessorAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('nome', response.data)
+
+
+class LecionacaoAPITests(APITestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='diretor@sigep.local',
+            password='SenhaForte123',
+            full_name='Subdiretor Pedagogico',
+        )
+        self.professor = Professor.objects.create(nome='Ana Maria', email='ana@sigep.local')
+        self.outro_professor = Professor.objects.create(nome='Carlos Manuel', email='carlos@sigep.local')
+        self.disciplina = Disciplina.objects.create(nome='Matematica')
+        self.outra_disciplina = Disciplina.objects.create(nome='Biologia')
+        self.turma = Turma.objects.create(
+            classe='10',
+            sala='A',
+            periodo=Turma.Periodo.MANHA,
+            ano_lectivo='2026',
+        )
+        self.outra_turma = Turma.objects.create(
+            classe='11',
+            sala='B',
+            periodo=Turma.Periodo.MANHA,
+            ano_lectivo='2026',
+        )
+        self.list_url = reverse('lecionacoes-list')
+
+    def authenticate(self):
+        self.client.force_authenticate(user=self.user)
+
+    def create_lecionacao(self, **kwargs):
+        data = {
+            'professor': self.professor,
+            'disciplina': self.disciplina,
+            'turma': self.turma,
+            'ano_lectivo': self.turma.ano_lectivo,
+            'estado': Lecionacao.Estado.ATIVO,
+        }
+        data.update(kwargs)
+        return Lecionacao.objects.create(**data)
+
+    def valid_payload(self, **overrides):
+        data = {
+            'professor': self.professor.id,
+            'disciplina': self.disciplina.id,
+            'turma': self.turma.id,
+            'estado': Lecionacao.Estado.ATIVO,
+            'observacao': '',
+        }
+        data.update(overrides)
+        return data
+
+    def test_lecionacoes_exigem_autenticacao(self):
+        response = self.client.get(self.list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_criar_lecionacao(self):
+        self.authenticate()
+
+        response = self.client.post(self.list_url, self.valid_payload(), format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Lecionacao.objects.count(), 1)
+        lecionacao = Lecionacao.objects.get()
+        self.assertEqual(lecionacao.ano_lectivo, self.turma.ano_lectivo)
+        self.assertEqual(response.data['turma_info']['horario'], 'Horário Regular')
+
+    def test_listar_lecionacoes_com_paginacao(self):
+        self.authenticate()
+        self.create_lecionacao()
+
+        response = self.client.get(self.list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+        self.assertEqual(response.data['count'], 1)
+
+    def test_consultar_lecionacao(self):
+        self.authenticate()
+        lecionacao = self.create_lecionacao()
+
+        response = self.client.get(reverse('lecionacoes-detail', args=[lecionacao.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['professor_info']['nome'], self.professor.nome)
+        self.assertEqual(response.data['disciplina_info']['nome'], self.disciplina.nome)
+        self.assertEqual(response.data['turma_info']['classe'], self.turma.classe)
+
+    def test_atualizar_lecionacao(self):
+        self.authenticate()
+        lecionacao = self.create_lecionacao()
+
+        response = self.client.put(
+            reverse('lecionacoes-detail', args=[lecionacao.id]),
+            self.valid_payload(
+                professor=self.outro_professor.id,
+                disciplina=self.outra_disciplina.id,
+                turma=self.outra_turma.id,
+                observacao='Atualizada.',
+            ),
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        lecionacao.refresh_from_db()
+        self.assertEqual(lecionacao.professor, self.outro_professor)
+        self.assertEqual(lecionacao.disciplina, self.outra_disciplina)
+        self.assertEqual(lecionacao.turma, self.outra_turma)
+
+    def test_eliminar_lecionacao_sem_dependencias(self):
+        self.authenticate()
+        lecionacao = self.create_lecionacao()
+
+        response = self.client.delete(reverse('lecionacoes-detail', args=[lecionacao.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Lecionacao.objects.filter(id=lecionacao.id).exists())
+
+    def test_validacoes_de_relacionamentos(self):
+        self.authenticate()
+
+        invalid_professor = self.client.post(self.list_url, self.valid_payload(professor=99999), format='json')
+        invalid_disciplina = self.client.post(self.list_url, self.valid_payload(disciplina=99999), format='json')
+        invalid_turma = self.client.post(self.list_url, self.valid_payload(turma=99999), format='json')
+
+        self.assertEqual(invalid_professor.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(invalid_disciplina.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(invalid_turma.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_prevenir_lecionacao_duplicada(self):
+        self.authenticate()
+        self.create_lecionacao()
+
+        response = self.client.post(self.list_url, self.valid_payload(), format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('non_field_errors', response.data)
+
+    def test_nao_eliminar_lecionacao_com_pct(self):
+        self.authenticate()
+        lecionacao = self.create_lecionacao()
+        PCT.objects.create(
+            lecionacao=lecionacao,
+            trimestre=PCT.Trimestre.PRIMEIRO,
+            data_aplicacao='2026-03-20',
+        )
+
+        response = self.client.delete(reverse('lecionacoes-detail', args=[lecionacao.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(Lecionacao.objects.filter(id=lecionacao.id).exists())
+
+    def test_nao_eliminar_lecionacao_com_controlo_de_aula(self):
+        self.authenticate()
+        lecionacao = self.create_lecionacao()
+        ControloAula.objects.create(
+            lecionacao=lecionacao,
+            data='2026-03-21',
+            aula_assistida=True,
+        )
+
+        response = self.client.delete(reverse('lecionacoes-detail', args=[lecionacao.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(Lecionacao.objects.filter(id=lecionacao.id).exists())

@@ -19,7 +19,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -121,7 +121,7 @@ function ControloAulaFormModal({
             <div className="modal-body">
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label" htmlFor="lecionacao">Lecionacao</label>
+                  <label className="form-label" htmlFor="lecionacao">Lecionação</label>
                   <select
                     id="lecionacao"
                     className="form-select"
@@ -171,7 +171,7 @@ function ControloAulaFormModal({
                   </div>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observacao</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -425,7 +425,7 @@ function ControloAulasPage() {
         <select className="form-select" value={aulaAssistida} onChange={(event) => resetAndSetPage(event, setAulaAssistida)}>
           <option value="">Todas</option>
           <option value="true">Assistidas</option>
-          <option value="false">Nao assistidas</option>
+          <option value="false">Não assistidas</option>
         </select>
         <select className="form-select" value={ordering} onChange={(event) => resetAndSetPage(event, setOrdering)}>
           <option value="-data">Data recente</option>
@@ -451,7 +451,7 @@ function ControloAulasPage() {
                 <th>Ano Lectivo</th>
                 <th>Data</th>
                 <th>Aula Assistida</th>
-                <th>Observacao</th>
+                <th>Observação</th>
                 <th className="text-end">Acoes</th>
               </tr>
             </thead>
@@ -477,7 +477,7 @@ function ControloAulasPage() {
                   <td>{formatDate(controlo.data)}</td>
                   <td>
                     <span className={`sigep-badge ${controlo.aula_assistida ? 'badge-success' : 'badge-warning'}`}>
-                      {controlo.aula_assistida ? 'Sim' : 'Nao'}
+                      {controlo.aula_assistida ? 'Sim' : 'Não'}
                     </span>
                   </td>
                   <td>{controlo.observacao || '-'}</td>

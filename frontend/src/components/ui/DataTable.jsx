@@ -13,7 +13,7 @@ function DataTable({ columns, rows, detailBasePath }) {
                 </th>
               ))}
               <th scope="col" className="text-end">
-                Acoes
+                Ações
               </th>
             </tr>
           </thead>

@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Count, F
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -54,6 +55,7 @@ class PCTViewSet(viewsets.ModelViewSet):
         ano_lectivo = self.request.query_params.get('ano_lectivo')
         trimestre = self.request.query_params.get('trimestre')
         nota_lancada = self.request.query_params.get('nota_lancada')
+        resultados_estado = self.request.query_params.get('resultados_estado')
         data_aplicacao = self.request.query_params.get('data_aplicacao')
 
         if professor:
@@ -68,6 +70,19 @@ class PCTViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(trimestre=trimestre)
         if nota_lancada in ('true', 'false'):
             queryset = queryset.filter(nota_lancada=nota_lancada == 'true')
+        if resultados_estado in ('NENHUM', 'PARCIAL', 'COMPLETO'):
+            queryset = queryset.annotate(
+                resultados_count_filter=Count('resultados', distinct=True),
+                alunos_count_filter=Count('lecionacao__turma__alunos', distinct=True),
+            )
+            if resultados_estado == 'NENHUM':
+                queryset = queryset.filter(resultados_count_filter=0)
+            elif resultados_estado == 'COMPLETO':
+                queryset = queryset.filter(resultados_count_filter__gte=F('alunos_count_filter'))
+            else:
+                queryset = queryset.filter(resultados_count_filter__gt=0).exclude(
+                    resultados_count_filter__gte=F('alunos_count_filter')
+                )
         if data_aplicacao:
             queryset = queryset.filter(data_aplicacao=data_aplicacao)
 

@@ -10,7 +10,7 @@ function DashboardPage() {
     <div className="page-stack">
       <PageHeader
         title="Dashboard Principal"
-        eyebrow="Gabinete Pedagogico"
+        eyebrow="Gabinete Pedagógico"
         description="Resumo visual das atividades pedagogicas, preparado para receber indicadores reais da API."
         breadcrumbs={['Dashboard']}
       />
@@ -23,7 +23,7 @@ function DashboardPage() {
 
       <section className="dashboard-grid">
         <FakeChart
-          title="Planificacoes por estado"
+          title="Planificações por estado"
           bars={[
             { label: 'Entregues', value: 78, tone: 'green' },
             { label: 'Pendentes', value: 22, tone: 'orange' },
@@ -31,10 +31,10 @@ function DashboardPage() {
           ]}
         />
         <FakeChart
-          title="Ocorrencias por categoria"
+          title="Ocorrências por categoria"
           bars={[
             { label: 'Disciplinar', value: 42, tone: 'red' },
-            { label: 'Academica', value: 30, tone: 'blue' },
+            { label: 'Académica', value: 30, tone: 'blue' },
             { label: 'Comportamental', value: 28, tone: 'yellow' },
           ]}
         />

@@ -6,7 +6,7 @@ import { getTurma } from '../services/turmaService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -132,7 +132,7 @@ function TurmaDetailPage() {
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>Observacao</h2>
+              <h2>Observação</h2>
             </div>
             <p className="mb-0 text-muted">{turma.observacao || 'Sem observacoes registadas.'}</p>
           </section>

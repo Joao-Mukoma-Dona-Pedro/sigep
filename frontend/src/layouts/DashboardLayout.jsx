@@ -21,7 +21,7 @@ function DashboardLayout() {
           <span className="brand-mark">S</span>
           <div className="sidebar-text">
             <strong>SIGEP</strong>
-            <small>Gestao Pedagogica</small>
+            <small>Gestão Pedagógica</small>
           </div>
         </div>
 
@@ -34,7 +34,7 @@ function DashboardLayout() {
           <i className={`bi ${isCollapsed ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}`} aria-hidden="true" />
         </button>
 
-        <nav className="sidebar-nav" aria-label="Modulos do SIGEP">
+        <nav className="sidebar-nav" aria-label="Módulos do SIGEP">
           <NavLink to="/dashboard" end title="Dashboard">
             <i className="bi bi-speedometer2" aria-hidden="true" />
             <span className="sidebar-text">Dashboard</span>
@@ -52,17 +52,17 @@ function DashboardLayout() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Administrador</p>
-            <h2>Subdiretor/Diretor Pedagogico</h2>
+            <h2>Subdiretor/Diretor Pedagógico</h2>
           </div>
           <div className="user-menu">
             <div className="user-avatar">{user?.full_name?.charAt(0) || 'S'}</div>
             <div>
-              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagogico'}</strong>
+              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagógico'}</strong>
               <small>{user?.email || 'admin@sigep.ao'}</small>
             </div>
             <NavLink className="btn btn-outline-secondary btn-sm" to="/configuracoes">
               <i className="bi bi-gear" aria-hidden="true" />
-              Configuracoes
+              Configurações
             </NavLink>
             <button className="btn btn-primary btn-sm" type="button" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right" aria-hidden="true" />
@@ -76,8 +76,8 @@ function DashboardLayout() {
         </main>
 
         <footer className="app-footer">
-          <span>SIGEP - Sistema Integrado de Gestao Pedagogica</span>
-          <span>Interface preparada para integracao futura com API</span>
+          <span>SIGEP - Sistema Integrado de Gestão Pedagógica</span>
+          <span>Interface integrada com API</span>
         </footer>
       </div>
     </div>

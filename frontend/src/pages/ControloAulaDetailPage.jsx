@@ -6,7 +6,7 @@ import { getControloAula } from '../services/controloAulaService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -119,14 +119,14 @@ function ControloAulaDetailPage() {
             <DetailItem label="Turma" value={controlo.lecionacao_info?.turma} />
             <DetailItem label="Ano Lectivo" value={controlo.lecionacao_info?.ano_lectivo} />
             <DetailItem label="Data" value={formatDate(controlo.data)} />
-            <DetailItem label="Aula Assistida" value={controlo.aula_assistida ? 'Sim' : 'Nao'} />
+            <DetailItem label="Aula Assistida" value={controlo.aula_assistida ? 'Sim' : 'Não'} />
             <DetailItem label="Data de Criacao" value={formatDateTime(controlo.created_at)} />
             <DetailItem label="Ultima Atualizacao" value={formatDateTime(controlo.updated_at)} />
           </section>
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>Observacao</h2>
+              <h2>Observação</h2>
             </div>
             <p className="mb-0 text-muted">{controlo.observacao || 'Sem observacoes registadas.'}</p>
           </section>

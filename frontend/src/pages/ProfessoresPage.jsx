@@ -20,7 +20,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -32,7 +32,7 @@ function getErrorMessage(error) {
   }
 
   if (error.response.status === 409) {
-    return error.response.data?.detail || 'Nao foi possivel eliminar este professor.';
+    return error.response.data?.detail || 'Não foi possível eliminar este professor.';
   }
 
   if (error.response.status === 400) {
@@ -138,7 +138,7 @@ function ProfessorFormModal({ mode, form, onChange, onClose, onSubmit, isSubmitt
                   </select>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observacao</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -286,7 +286,7 @@ function ProfessoresPage() {
     <div className="page-stack">
       <PageHeader
         title="Professores"
-        eyebrow="Gestao pedagogica"
+        eyebrow="Gestão pedagógica"
         description="Cadastro e acompanhamento dos professores registados no SIGEP."
         breadcrumbs={['Professores']}
         actions={(

@@ -20,15 +20,15 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Nao foi possivel conectar ao servidor. Verifique se o backend esta ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
-    return 'A sua sessao expirou. Entre novamente no SIGEP.';
+    return 'A sua sessão expirou. Entre novamente no SIGEP.';
   }
 
   if (error.response.status === 404) {
-    return 'PCT nao encontrada.';
+    return 'PCT não encontrada.';
   }
 
   if (error.response.status === 400) {
@@ -38,7 +38,7 @@ function getErrorMessage(error) {
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulario.';
+    return firstMessage || 'Verifique os dados do formulário.';
   }
 
   return 'Ocorreu um erro inesperado. Tente novamente.';
@@ -51,18 +51,18 @@ function formatDate(value) {
 
 function formatTrimestre(value) {
   const labels = {
-    1: '1o Trimestre',
-    2: '2o Trimestre',
-    3: '3o Trimestre',
+    1: '1.º Trimestre',
+    2: '2.º Trimestre',
+    3: '3.º Trimestre',
   };
   return labels[value] || '-';
 }
 
 function formatResultadosEstado(value) {
   const labels = {
-    NENHUM: 'Nao lancados',
+    NENHUM: 'Não lançada',
     PARCIAL: 'Parcial',
-    COMPLETO: 'Completo',
+    COMPLETO: 'Completa',
   };
   return labels[value] || '-';
 }
@@ -85,7 +85,6 @@ function buildPayload(form) {
     lecionacao: form.lecionacao ? Number(form.lecionacao) : '',
     trimestre: form.trimestre,
     data_aplicacao: form.data_aplicacao,
-    nota_lancada: Boolean(form.nota_lancada),
     observacao: form.observacao,
   };
 }
@@ -94,7 +93,7 @@ function DerivedInfo({ lecionacao }) {
   if (!lecionacao) {
     return (
       <div className="alert alert-info mb-0">
-        Selecione uma lecionacao para visualizar professor, disciplina, turma e ano lectivo.
+        Selecione uma lecionação para visualizar professor, disciplina, turma e ano lectivo.
       </div>
     );
   }
@@ -150,7 +149,7 @@ function PctFormModal({
             <div className="modal-body">
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label" htmlFor="lecionacao">Lecionacao</label>
+                  <label className="form-label" htmlFor="lecionacao">Lecionação</label>
                   <select
                     id="lecionacao"
                     className="form-select"
@@ -159,7 +158,7 @@ function PctFormModal({
                     onChange={onChange}
                     required
                   >
-                    <option value="">Selecione uma lecionacao</option>
+                    <option value="">Selecione uma lecionação</option>
                     {lecionacoes.map((lecionacao) => (
                       <option key={lecionacao.id} value={lecionacao.id}>
                         {getLecionacaoLabel(lecionacao)}
@@ -182,13 +181,13 @@ function PctFormModal({
                     onChange={onChange}
                     required
                   >
-                    <option value="1">1o Trimestre</option>
-                    <option value="2">2o Trimestre</option>
-                    <option value="3">3o Trimestre</option>
+                    <option value="1">1.º Trimestre</option>
+                    <option value="2">2.º Trimestre</option>
+                    <option value="3">3.º Trimestre</option>
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" htmlFor="data_aplicacao">Data de Aplicacao</label>
+                  <label className="form-label" htmlFor="data_aplicacao">Data de Aplicação</label>
                   <input
                     id="data_aplicacao"
                     className="form-control"
@@ -199,23 +198,8 @@ function PctFormModal({
                     required
                   />
                 </div>
-                <div className="col-md-6 d-flex align-items-end">
-                  <div className="form-check form-switch mb-2">
-                    <input
-                      id="nota_lancada"
-                      className="form-check-input"
-                      name="nota_lancada"
-                      type="checkbox"
-                      checked={form.nota_lancada}
-                      onChange={onCheckChange}
-                    />
-                    <label className="form-check-label" htmlFor="nota_lancada">
-                      Nota Lancada
-                    </label>
-                  </div>
-                </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observacao</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -256,7 +240,7 @@ function PctPage() {
   const [turma, setTurma] = useState('');
   const [anoLectivo, setAnoLectivo] = useState('');
   const [trimestre, setTrimestre] = useState('');
-  const [notaLancada, setNotaLancada] = useState('');
+  const [resultadosEstado, setResultadosEstado] = useState('');
   const [dataAplicacao, setDataAplicacao] = useState('');
   const [ordering, setOrdering] = useState('-data_aplicacao');
   const [isLoading, setIsLoading] = useState(false);
@@ -297,7 +281,7 @@ function PctPage() {
         turma,
         ano_lectivo: anoLectivo,
         trimestre,
-        nota_lancada: notaLancada,
+        resultados_estado: resultadosEstado,
         data_aplicacao: dataAplicacao,
         ordering,
         page: targetPage,
@@ -330,7 +314,7 @@ function PctPage() {
     }, 350);
 
     return () => window.clearTimeout(timeout);
-  }, [page, search, professor, disciplina, turma, anoLectivo, trimestre, notaLancada, dataAplicacao, ordering]);
+  }, [page, search, professor, disciplina, turma, anoLectivo, trimestre, resultadosEstado, dataAplicacao, ordering]);
 
   function resetAndSetPage(event, setter) {
     setPage(1);
@@ -420,7 +404,7 @@ function PctPage() {
       <PageHeader
         title="PCT"
         eyebrow="Provas Comuns Trimestrais"
-        description="Registo e acompanhamento das provas comuns realizadas em cada trimestre."
+        description="Registo e acompanhamento das Provas Comuns Trimestrais realizadas em cada trimestre."
         breadcrumbs={['PCT']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
@@ -470,9 +454,9 @@ function PctPage() {
         </select>
         <select className="form-select" value={trimestre} onChange={(event) => resetAndSetPage(event, setTrimestre)}>
           <option value="">Todos os trimestres</option>
-          <option value="1">1o Trimestre</option>
-          <option value="2">2o Trimestre</option>
-          <option value="3">3o Trimestre</option>
+          <option value="1">1.º Trimestre</option>
+          <option value="2">2.º Trimestre</option>
+          <option value="3">3.º Trimestre</option>
         </select>
         <input
           className="form-control"
@@ -480,10 +464,11 @@ function PctPage() {
           value={dataAplicacao}
           onChange={(event) => resetAndSetPage(event, setDataAplicacao)}
         />
-        <select className="form-select" value={notaLancada} onChange={(event) => resetAndSetPage(event, setNotaLancada)}>
-          <option value="">Todas</option>
-          <option value="true">Notas lancadas</option>
-          <option value="false">Notas pendentes</option>
+        <select className="form-select" value={resultadosEstado} onChange={(event) => resetAndSetPage(event, setResultadosEstado)}>
+          <option value="">Todos os estados</option>
+          <option value="NENHUM">Não lançada</option>
+          <option value="PARCIAL">Parcial</option>
+          <option value="COMPLETO">Completa</option>
         </select>
         <select className="form-select" value={ordering} onChange={(event) => resetAndSetPage(event, setOrdering)}>
           <option value="-data_aplicacao">Data recente</option>
@@ -508,23 +493,22 @@ function PctPage() {
                 <th>Turma</th>
                 <th>Ano Lectivo</th>
                 <th>Trimestre</th>
-                <th>Data de Aplicacao</th>
-                <th>Nota Lancada</th>
-                <th>Resultados</th>
-                <th>Observacao</th>
+                <th>Data de Aplicação</th>
+                <th>Estado das Notas</th>
+                <th>Observação</th>
                 <th className="text-end">Acoes</th>
               </tr>
             </thead>
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan="10" className="text-center text-muted py-4">A carregar PCT...</td>
+                  <td colSpan="9" className="text-center text-muted py-4">A carregar PCT...</td>
                 </tr>
               )}
 
               {!isLoading && pcts.length === 0 && (
                 <tr>
-                  <td colSpan="10" className="text-center text-muted py-4">Nenhuma PCT encontrada.</td>
+                  <td colSpan="9" className="text-center text-muted py-4">Nenhuma PCT encontrada.</td>
                 </tr>
               )}
 
@@ -536,11 +520,6 @@ function PctPage() {
                   <td>{pct.lecionacao_info?.ano_lectivo || '-'}</td>
                   <td>{formatTrimestre(pct.trimestre)}</td>
                   <td>{formatDate(pct.data_aplicacao)}</td>
-                  <td>
-                    <span className={`sigep-badge ${pct.nota_lancada ? 'badge-success' : 'badge-warning'}`}>
-                      {pct.nota_lancada ? 'Sim' : 'Nao'}
-                    </span>
-                  </td>
                   <td>
                     <span className={`sigep-badge ${getResultadosBadge(pct.resultados_estado)}`}>
                       {formatResultadosEstado(pct.resultados_estado)}
