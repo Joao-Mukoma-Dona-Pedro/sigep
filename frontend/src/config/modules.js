@@ -3,7 +3,7 @@ export const moduleLinks = [
   { path: '/disciplinas', label: 'Disciplinas', icon: 'bi-book', color: 'purple' },
   { path: '/turmas', label: 'Turmas', icon: 'bi-grid-3x3-gap', color: 'blue' },
   { path: '/alunos', label: 'Alunos', icon: 'bi-mortarboard', color: 'blue' },
-  { path: '/lecionacoes', label: 'Leccionações', icon: 'bi-diagram-3', color: 'cyan' },
+  { path: '/leccionacoes', label: 'Leccionações', icon: 'bi-diagram-3', color: 'cyan' },
   { path: '/planificacoes', label: 'Planificações', icon: 'bi-journal-check', color: 'purple' },
   { path: '/controlo-aulas', label: 'Controlo de Aulas', icon: 'bi-calendar2-check', color: 'orange' },
   { path: '/pct', label: 'PCT', icon: 'bi-file-earmark-text', color: 'green' },

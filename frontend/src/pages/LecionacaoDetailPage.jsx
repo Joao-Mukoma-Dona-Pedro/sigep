@@ -51,7 +51,7 @@ function LecionacaoDetailPage() {
       <PageHeader
         title="LeccionaÃ§Ã£o"
         breadcrumbs={['LeccionaÃ§Ãµes', 'Detalhes']}
-        actions={<Link className="btn btn-outline-secondary" to="/lecionacoes"><i className="bi bi-arrow-left" />Voltar</Link>}
+        actions={<Link className="btn btn-outline-secondary" to="/leccionacoes"><i className="bi bi-arrow-left" />Voltar</Link>}
       />
 
       {isLoading && <section className="empty-state"><h2>A carregar leccionaÃ§Ã£o...</h2></section>}

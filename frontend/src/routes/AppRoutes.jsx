@@ -57,6 +57,8 @@ function AppRoutes() {
           <Route path="/turmas/:id" element={<TurmaDetailPage />} />
           <Route path="/alunos" element={<AlunosPage />} />
           <Route path="/alunos/:id" element={<AlunoDetailPage />} />
+          <Route path="/leccionacoes" element={<LecionacoesPage />} />
+          <Route path="/leccionacoes/:id" element={<LecionacaoDetailPage />} />
           <Route path="/lecionacoes" element={<LecionacoesPage />} />
           <Route path="/lecionacoes/:id" element={<LecionacaoDetailPage />} />
           <Route path="/planificacoes" element={<PlanificacoesPage />} />

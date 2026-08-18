@@ -329,7 +329,7 @@ function LecionacoesPage() {
                   <td><span className={`sigep-badge ${item.estado === 'ATIVO' ? 'badge-success' : 'badge-danger'}`}>{item.estado === 'ATIVO' ? 'Ativa' : 'Inativa'}</span></td>
                   <td>
                     <div className="button-cluster justify-content-end">
-                      <Link className="btn btn-sm btn-outline-secondary" to={`/lecionacoes/${item.id}`}><i className="bi bi-eye" />Ver</Link>
+                      <Link className="btn btn-sm btn-outline-secondary" to={`/leccionacoes/${item.id}`}><i className="bi bi-eye" />Ver</Link>
                       <button className="btn btn-sm btn-outline-secondary" type="button" onClick={() => openEditModal(item)}><i className="bi bi-pencil" />Editar</button>
                       <button className="btn btn-sm btn-danger" type="button" onClick={() => handleDelete(item)}><i className="bi bi-trash" />Eliminar</button>
                     </div>
