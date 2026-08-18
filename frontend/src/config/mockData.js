@@ -62,5 +62,5 @@ export const activities = [
 export const notices = [
   'Prazo de entrega das planificacoes termina esta semana.',
   'Revisao das PCT deve ser concluida antes do conselho pedagogico.',
-  'Relatorios trimestrais ficam disponiveis apos validacao.',
+  'Relatórios trimestrais ficam disponíveis após validação.',
 ];

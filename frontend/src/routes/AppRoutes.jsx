@@ -19,7 +19,6 @@ import LecionacaoDetailPage from '../pages/LecionacaoDetailPage';
 import LecionacoesPage from '../pages/LecionacoesPage';
 import LoginPage from '../pages/LoginPage';
 import ManagementPage from '../pages/ManagementPage';
-import MeetingsPage from '../pages/MeetingsPage';
 import OcorrenciaDetailPage from '../pages/OcorrenciaDetailPage';
 import OcorrenciasPage from '../pages/OcorrenciasPage';
 import PlanificacaoDetailPage from '../pages/PlanificacaoDetailPage';
@@ -30,7 +29,9 @@ import PctPage from '../pages/PctPage';
 import ProfessorDetailPage from '../pages/ProfessorDetailPage';
 import ProfessoresPage from '../pages/ProfessoresPage';
 import ProfilePage from '../pages/ProfilePage';
-import ReportsPage from '../pages/ReportsPage';
+import RelatoriosPage from '../pages/RelatoriosPage';
+import ReuniaoDetailPage from '../pages/ReuniaoDetailPage';
+import ReunioesPage from '../pages/ReunioesPage';
 import SettingsPage from '../pages/SettingsPage';
 import TiposOcorrenciaPage from '../pages/TiposOcorrenciaPage';
 import TurmaDetailPage from '../pages/TurmaDetailPage';
@@ -71,8 +72,9 @@ function AppRoutes() {
           <Route path="/ocorrencias" element={<OcorrenciasPage />} />
           <Route path="/ocorrencias/:id" element={<OcorrenciaDetailPage />} />
           <Route path="/tipos-ocorrencias" element={<TiposOcorrenciaPage />} />
-          <Route path="/reunioes" element={<MeetingsPage />} />
-          <Route path="/relatorios" element={<ReportsPage />} />
+          <Route path="/reunioes" element={<ReunioesPage />} />
+          <Route path="/reunioes/:id" element={<ReuniaoDetailPage />} />
+          <Route path="/relatorios" element={<RelatoriosPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
         </Route>
       </Route>

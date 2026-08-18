@@ -23,10 +23,13 @@ urlpatterns = [
     path('api/auth/', include('users.urls')),
     path('api/', include('aulas.urls')),
     path('api/', include('disciplinas.urls')),
+    path('api/', include('dashboard.urls')),
     path('api/', include('ocorrencias.urls')),
     path('api/', include('planificacoes.urls')),
     path('api/', include('pct.urls')),
     path('api/', include('professores.urls')),
+    path('api/', include('relatorios.urls')),
+    path('api/', include('reunioes.urls')),
     path('api/', include('tipos_ocorrencias.urls')),
     path('api/', include('turmas.urls')),
 ]
