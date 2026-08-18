@@ -1,74 +1,120 @@
-import CalendarPanel from '../components/ui/CalendarPanel';
-import FakeChart from '../components/ui/FakeChart';
+﻿import { useEffect, useState } from 'react';
+
 import PageHeader from '../components/ui/PageHeader';
 import StatCard from '../components/ui/StatCard';
-import { dashboardStats } from '../config/modules';
-import { activities, notices } from '../config/mockData';
+import { getDashboardSummary } from '../services/dashboardService';
+
+const emptySummary = {
+  stats: [],
+  charts: {},
+  activities: [],
+};
+
+function getErrorMessage(error) {
+  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ activo.';
+  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+  return 'Ocorreu um erro ao carregar o Dashboard.';
+}
+
+function RealChart({ chart }) {
+  if (!chart || !chart.total) {
+    return (
+      <article className="panel-card">
+        <div className="panel-card-header">
+          <h2>{chart?.title || 'Indicador'}</h2>
+        </div>
+        <p className="text-muted mb-0">Sem dados suficientes.</p>
+      </article>
+    );
+  }
+
+  return (
+    <article className="panel-card">
+      <div className="panel-card-header">
+        <h2>{chart.title}</h2>
+      </div>
+      <div className="fake-chart" aria-label={chart.title}>
+        {chart.items.map((item) => {
+          const width = chart.total ? Math.round((item.value / chart.total) * 100) : 0;
+          return (
+            <div className="chart-row" key={item.label}>
+              <span>{item.label}</span>
+              <div className="chart-track">
+                <div className="chart-bar tone-blue" style={{ width: `${width}%` }} />
+              </div>
+              <strong>{item.value}</strong>
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+}
 
 function DashboardPage() {
+  const [summary, setSummary] = useState(emptySummary);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadDashboard() {
+      setIsLoading(true);
+      setError('');
+      try {
+        const data = await getDashboardSummary();
+        if (isMounted) setSummary(data);
+      } catch (requestError) {
+        if (isMounted) setError(getErrorMessage(requestError));
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    loadDashboard();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <div className="page-stack">
-      <PageHeader
-        title="Dashboard Principal"
-        eyebrow="Gabinete Pedagógico"
-        description="Resumo visual das atividades pedagogicas, preparado para receber indicadores reais da API."
-        breadcrumbs={['Dashboard']}
-      />
+      <PageHeader title="Dashboard" breadcrumbs={['Dashboard']} />
+
+      {error && <div className="alert alert-danger">{error}</div>}
 
       <section className="stats-grid">
-        {dashboardStats.map((stat) => (
+        {isLoading && <div className="text-muted">A carregar indicadores...</div>}
+        {!isLoading && summary.stats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </section>
 
       <section className="dashboard-grid">
-        <FakeChart
-          title="Planificações por estado"
-          bars={[
-            { label: 'Entregues', value: 78, tone: 'green' },
-            { label: 'Pendentes', value: 22, tone: 'orange' },
-            { label: 'Em revisao', value: 35, tone: 'purple' },
-          ]}
-        />
-        <FakeChart
-          title="Ocorrências por categoria"
-          bars={[
-            { label: 'Disciplinar', value: 42, tone: 'red' },
-            { label: 'Académica', value: 30, tone: 'blue' },
-            { label: 'Comportamental', value: 28, tone: 'yellow' },
-          ]}
-        />
-        <CalendarPanel />
+        <RealChart chart={summary.charts.planificacoes} />
+        <RealChart chart={summary.charts.aulas} />
+        <RealChart chart={summary.charts.ocorrencias} />
       </section>
 
-      <section className="dashboard-grid two-columns">
-        <article className="panel-card">
-          <div className="panel-card-header">
-            <h2>Ultimas Atividades</h2>
-            <i className="bi bi-clock-history" aria-hidden="true" />
-          </div>
+      <section className="panel-card">
+        <div className="panel-card-header">
+          <h2>Actividade Recente</h2>
+          <i className="bi bi-clock-history" aria-hidden="true" />
+        </div>
+        {summary.activities.length === 0 ? (
+          <p className="text-muted mb-0">Sem actividade recente.</p>
+        ) : (
           <ul className="activity-list">
-            {activities.map((activity) => (
-              <li key={activity}>
+            {summary.activities.map((activity) => (
+              <li key={`${activity.label}-${activity.date}-${activity.text}`}>
                 <span className="activity-dot" />
-                {activity}
+                <span>{activity.text}</span>
               </li>
             ))}
           </ul>
-        </article>
-        <article className="panel-card">
-          <div className="panel-card-header">
-            <h2>Avisos</h2>
-            <i className="bi bi-megaphone" aria-hidden="true" />
-          </div>
-          <div className="alert-list">
-            {notices.map((notice) => (
-              <div className="alert alert-warning mb-0" key={notice}>
-                {notice}
-              </div>
-            ))}
-          </div>
-        </article>
+        )}
       </section>
     </div>
   );

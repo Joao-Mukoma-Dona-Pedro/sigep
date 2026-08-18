@@ -99,6 +99,8 @@ class RelatoriosAPITests(APITestCase):
         endpoints = [
             'relatorios-opcoes',
             'relatorios-professores',
+            'relatorios-disciplinas',
+            'relatorios-lecionacoes',
             'relatorios-turmas',
             'relatorios-alunos',
             'relatorios-planificacoes',
@@ -131,6 +133,25 @@ class RelatoriosAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['resumo']['total'], 1)
         self.assertIn('Matemática', response.data['rows'][0]['lecionacoes'])
+        self.assertIn('seccoes', response.data)
+
+    def test_relatorio_disciplinas_reune_contexto_pedagogico(self):
+        self.authenticate()
+
+        response = self.client.get(reverse('relatorios-disciplinas'), {'disciplina': self.disciplina.id})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rows'][0]['nome'], self.disciplina.nome)
+        self.assertGreaterEqual(len(response.data['seccoes']), 3)
+
+    def test_relatorio_lecionacoes_reune_contexto_pedagogico(self):
+        self.authenticate()
+
+        response = self.client.get(reverse('relatorios-lecionacoes'), {'lecionacao': self.lecionacao.id})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rows'][0]['professor'], self.professor.nome)
+        self.assertGreaterEqual(len(response.data['seccoes']), 3)
 
     def test_relatorio_turmas_agrega_quantidade_alunos(self):
         self.authenticate()

@@ -6,7 +6,7 @@ import { getProfessor } from '../services/professorService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -82,8 +82,6 @@ function ProfessorDetailPage() {
     <div className="page-stack">
       <PageHeader
         title={professor?.nome || 'Professor'}
-        eyebrow="Detalhes"
-        description="Informacoes administrativas e pedagogicas do professor."
         breadcrumbs={['Professores', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/professores">
@@ -125,7 +123,7 @@ function ProfessorDetailPage() {
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>Observação</h2>
+              <h2>ObservaÃ§Ã£o</h2>
             </div>
             <p className="mb-0 text-muted">{professor.observacao || 'Sem observacoes registadas.'}</p>
           </section>

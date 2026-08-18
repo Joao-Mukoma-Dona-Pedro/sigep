@@ -6,7 +6,7 @@ import { getTurma } from '../services/turmaService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -86,8 +86,6 @@ function TurmaDetailPage() {
     <div className="page-stack">
       <PageHeader
         title={turma ? `${turma.classe} ${turma.sala}` : 'Turma'}
-        eyebrow="Detalhes"
-        description="Informacoes administrativas e pedagogicas da turma."
         breadcrumbs={['Turmas', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/turmas">
@@ -132,7 +130,7 @@ function TurmaDetailPage() {
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>Observação</h2>
+              <h2>ObservaÃ§Ã£o</h2>
             </div>
             <p className="mb-0 text-muted">{turma.observacao || 'Sem observacoes registadas.'}</p>
           </section>

@@ -1,4 +1,4 @@
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, Max, Min, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,13 +45,35 @@ def pct_status(resultados_count, alunos_count):
 class ReportAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def report_response(self, titulo, params, rows, summary=None):
+    def report_response(self, titulo, params, rows, summary=None, sections=None):
         return Response({
             'titulo': titulo,
             'filtros': {key: value for key, value in params.items() if value not in ('', None)},
             'resumo': summary or {'total': len(rows)},
             'rows': rows,
+            'seccoes': sections or [
+                {
+                    'titulo': 'Registos',
+                    'tipo': 'tabela',
+                    'rows': rows,
+                },
+            ],
         })
+
+    def table_section(self, titulo, rows, empty='Sem dados.'):
+        return {
+            'titulo': titulo,
+            'tipo': 'tabela',
+            'rows': rows,
+            'empty': empty,
+        }
+
+    def detail_section(self, titulo, items):
+        return {
+            'titulo': titulo,
+            'tipo': 'detalhes',
+            'items': items,
+        }
 
 
 class ReportOptionsView(ReportAPIView):
@@ -62,6 +84,22 @@ class ReportOptionsView(ReportAPIView):
             'classes': list(Turma.objects.values_list('classe', flat=True).distinct().order_by('classe')),
             'professores': list(Professor.objects.order_by('nome').values('id', 'nome')),
             'disciplinas': list(Disciplina.objects.order_by('nome').values('id', 'nome')),
+            'lecionacoes': [
+                {
+                    'id': item.id,
+                    'nome': f'{item.professor.nome} - {item.disciplina.nome} - {item.turma}',
+                    'professor': item.professor_id,
+                    'disciplina': item.disciplina_id,
+                    'turma': item.turma_id,
+                    'ano_lectivo': item.ano_lectivo,
+                }
+                for item in Lecionacao.objects.select_related('professor', 'disciplina', 'turma').order_by(
+                    'ano_lectivo',
+                    'turma__classe',
+                    'disciplina__nome',
+                    'professor__nome',
+                )
+            ],
             'turmas': [
                 {'id': turma.id, 'nome': str(turma), 'classe': turma.classe, 'ano_lectivo': turma.ano_lectivo, 'sala': turma.sala}
                 for turma in turmas
@@ -91,6 +129,8 @@ class ProfessoresReportView(ReportAPIView):
     def get(self, request):
         queryset = Professor.objects.prefetch_related('lecionacoes__disciplina', 'lecionacoes__turma').order_by('nome')
         params = request.query_params
+        if params.get('professor'):
+            queryset = queryset.filter(id=params.get('professor'))
         if params.get('estado'):
             queryset = queryset.filter(estado=params.get('estado'))
         if params.get('disciplina'):
@@ -108,15 +148,92 @@ class ProfessoresReportView(ReportAPIView):
                 for item in professor.lecionacoes.all()
             ]
             rows.append({
+                'id': professor.id,
                 'nome': professor.nome,
                 'telefone': professor.telefone,
                 'email': professor.email,
                 'estado': professor.get_estado_display(),
                 'data_entrada': professor.data_entrada,
+                'observacao': professor.observacao,
                 'lecionacoes': '; '.join(lecionacoes) or '-',
             })
 
-        return self.report_response('Relatório de Professores', params, rows)
+        sections = [self.table_section('Professores', rows, 'Sem professores.')]
+        if params.get('professor') and rows:
+            professor = queryset.first()
+            lecionacoes_qs = professor.lecionacoes.select_related('disciplina', 'turma')
+            planificacoes_qs = professor.planificacoes.all()
+            controlo_qs = ControloAula.objects.filter(lecionacao__professor=professor).select_related('lecionacao__disciplina', 'lecionacao__turma')
+            pct_qs = PCT.objects.filter(lecionacao__professor=professor).select_related('lecionacao__disciplina', 'lecionacao__turma').annotate(
+                resultados_count=Count('resultados', distinct=True),
+                alunos_count=Count('lecionacao__turma__alunos', distinct=True),
+                media=Avg('resultados__nota'),
+                maior_nota=Max('resultados__nota'),
+                menor_nota=Min('resultados__nota'),
+            )
+            ocorrencias_qs = Ocorrencia.objects.filter(registada_por=professor).select_related('aluno__turma', 'tipo')
+            sections = [
+                self.detail_section('Identificação', rows[0]),
+                self.table_section('Leccionações', [
+                    {
+                        'disciplina': item.disciplina.nome,
+                        'turma': str(item.turma),
+                        'classe': item.turma.classe,
+                        'ano_lectivo': item.ano_lectivo,
+                        'periodo': item.turma.get_periodo_display(),
+                        'turno': item.turma.turno,
+                    }
+                    for item in lecionacoes_qs
+                ], 'Sem leccionações registadas.'),
+                self.table_section('Planificações', [
+                    {
+                        'trimestre': pct_trimestre_label(item.trimestre),
+                        'data_entrega': item.data_entrega,
+                        'situacao': 'Entregue' if item.entregou else 'Não entregue',
+                        'observacao': item.observacao,
+                    }
+                    for item in planificacoes_qs
+                ], 'Sem planificações registadas.'),
+                self.table_section('Controlo de Aulas', [
+                    {
+                        'disciplina': item.lecionacao.disciplina.nome,
+                        'turma': str(item.lecionacao.turma),
+                        'data': item.data,
+                        'aula_assistida': 'Sim' if item.aula_assistida else 'Não',
+                        'observacao': item.observacao,
+                    }
+                    for item in controlo_qs
+                ], 'Sem controlo de aulas registado.'),
+                self.table_section('PCT', [
+                    {
+                        'disciplina': item.lecionacao.disciplina.nome,
+                        'turma': str(item.lecionacao.turma),
+                        'ano_lectivo': item.lecionacao.ano_lectivo,
+                        'trimestre': pct_trimestre_label(item.trimestre),
+                        'data_aplicacao': item.data_aplicacao,
+                        'estado_resultados': pct_status(item.resultados_count, item.alunos_count),
+                        'resultados': item.resultados_count,
+                        'media': round(float(item.media), 2) if item.media is not None else None,
+                        'maior_nota': item.maior_nota,
+                        'menor_nota': item.menor_nota,
+                    }
+                    for item in pct_qs
+                ], 'Sem PCT registadas.'),
+                self.table_section('Ocorrências Registadas', [
+                    {
+                        'aluno': item.aluno.nome,
+                        'turma': str(item.aluno.turma),
+                        'data': item.data_ocorrencia,
+                        'tipo': item.tipo.descricao,
+                        'categoria': item.tipo.get_categoria_display(),
+                        'descricao': item.descricao,
+                        'medida_tomada': item.medida_tomada,
+                    }
+                    for item in ocorrencias_qs
+                ], 'Sem ocorrências registadas por este professor.'),
+            ]
+
+        return self.report_response('Relatório de Professores', params, rows, sections=sections)
 
 
 class TurmasReportView(ReportAPIView):
@@ -127,12 +244,16 @@ class TurmasReportView(ReportAPIView):
             queryset = queryset.filter(ano_lectivo=params.get('ano_lectivo'))
         if params.get('classe'):
             queryset = queryset.filter(classe=params.get('classe'))
+        if params.get('turma'):
+            queryset = queryset.filter(id=params.get('turma'))
         if params.get('estado'):
             queryset = queryset.filter(estado=params.get('estado'))
 
         rows = [{
             'classe': turma.classe,
             'sala': turma.sala,
+            'periodo': turma.get_periodo_display(),
+            'turno': turma.turno,
             'ano_lectivo': turma.ano_lectivo,
             'diretor_turma': turma.diretor_turma.nome if turma.diretor_turma else '-',
             'quantidade_alunos': turma.total_alunos,
@@ -140,7 +261,59 @@ class TurmasReportView(ReportAPIView):
             'estado': turma.get_estado_display(),
         } for turma in queryset]
 
-        return self.report_response('Relatório de Turmas', params, rows)
+        sections = [self.table_section('Turmas', rows, 'Sem turmas.')]
+        if params.get('turma') and rows:
+            turma = queryset.first()
+            resultados_qs = ResultadoPCT.objects.filter(aluno__turma=turma).select_related('aluno', 'pct__lecionacao__disciplina')
+            ocorrencias_qs = Ocorrencia.objects.filter(aluno__turma=turma).select_related('aluno', 'tipo', 'registada_por')
+            controlo_qs = ControloAula.objects.filter(lecionacao__turma=turma).select_related('lecionacao__professor', 'lecionacao__disciplina')
+            sections = [
+                self.detail_section('Identificação da Turma', rows[0]),
+                self.table_section('Alunos', [
+                    {'numero': item.numero, 'nome': item.nome, 'estado': item.get_estado_display()}
+                    for item in turma.alunos.all()
+                ], 'Sem alunos registados.'),
+                self.table_section('Leccionações', [
+                    {
+                        'professor': item.professor.nome,
+                        'disciplina': item.disciplina.nome,
+                        'ano_lectivo': item.ano_lectivo,
+                    }
+                    for item in turma.lecionacoes.select_related('professor', 'disciplina')
+                ], 'Sem leccionações registadas.'),
+                self.table_section('Resultados PCT', [
+                    {
+                        'aluno': item.aluno.nome,
+                        'disciplina': item.pct.lecionacao.disciplina.nome,
+                        'trimestre': pct_trimestre_label(item.pct.trimestre),
+                        'nota': item.nota,
+                    }
+                    for item in resultados_qs
+                ], 'Sem resultados PCT.'),
+                self.table_section('Ocorrências', [
+                    {
+                        'aluno': item.aluno.nome,
+                        'data': item.data_ocorrencia,
+                        'tipo': item.tipo.descricao,
+                        'categoria': item.tipo.get_categoria_display(),
+                        'descricao': item.descricao,
+                        'medida_tomada': item.medida_tomada,
+                    }
+                    for item in ocorrencias_qs
+                ], 'Sem ocorrências registadas.'),
+                self.table_section('Controlo de Aulas', [
+                    {
+                        'disciplina': item.lecionacao.disciplina.nome,
+                        'professor': item.lecionacao.professor.nome,
+                        'data': item.data,
+                        'aula_assistida': 'Sim' if item.aula_assistida else 'Não',
+                        'observacao': item.observacao,
+                    }
+                    for item in controlo_qs
+                ], 'Sem controlo de aulas registado.'),
+            ]
+
+        return self.report_response('Relatório de Turmas', params, rows, sections=sections)
 
 
 class AlunosReportView(ReportAPIView):
@@ -153,6 +326,8 @@ class AlunosReportView(ReportAPIView):
             queryset = queryset.filter(turma__classe=params.get('classe'))
         if params.get('turma'):
             queryset = queryset.filter(turma_id=params.get('turma'))
+        if params.get('aluno'):
+            queryset = queryset.filter(id=params.get('aluno'))
         if params.get('estado'):
             queryset = queryset.filter(estado=params.get('estado'))
 
@@ -161,11 +336,185 @@ class AlunosReportView(ReportAPIView):
             'nome': aluno.nome,
             'turma': str(aluno.turma),
             'classe': aluno.turma.classe,
+            'sexo': aluno.get_sexo_display() if aluno.sexo else '',
             'estado': aluno.get_estado_display(),
             'encarregado_educacao': aluno.encarregado_educacao,
+            'telefone_encarregado': aluno.telefone_encarregado,
+            'observacao': aluno.observacao,
         } for aluno in queryset]
 
-        return self.report_response('Relatório de Alunos', params, rows)
+        sections = [self.table_section('Alunos', rows, 'Sem alunos.')]
+        if params.get('aluno') and rows:
+            aluno = queryset.first()
+            resultados_qs = ResultadoPCT.objects.filter(aluno=aluno).select_related('pct__lecionacao__disciplina', 'pct__lecionacao__turma')
+            ocorrencias_qs = aluno.ocorrencias.select_related('tipo', 'registada_por')
+            agregados = resultados_qs.aggregate(media=Avg('nota'), maior=Max('nota'), menor=Min('nota'), total=Count('id'))
+            sections = [
+                self.detail_section('Identificação', rows[0]),
+                self.table_section('Resultados PCT', [
+                    {
+                        'disciplina': item.pct.lecionacao.disciplina.nome,
+                        'turma': str(item.pct.lecionacao.turma),
+                        'trimestre': pct_trimestre_label(item.pct.trimestre),
+                        'data_aplicacao': item.pct.data_aplicacao,
+                        'nota': item.nota,
+                    }
+                    for item in resultados_qs
+                ], 'Sem resultados PCT.'),
+                self.detail_section('Resumo do Aluno', {
+                    'resultados_pct': agregados['total'],
+                    'media_geral': round(float(agregados['media']), 2) if agregados['media'] is not None else 'Sem resultado',
+                    'maior_nota': agregados['maior'] if agregados['maior'] is not None else 'Sem resultado',
+                    'menor_nota': agregados['menor'] if agregados['menor'] is not None else 'Sem resultado',
+                    'ocorrencias': ocorrencias_qs.count(),
+                    'disciplinas_com_resultados': resultados_qs.values('pct__lecionacao__disciplina').distinct().count(),
+                }),
+                self.table_section('Ocorrências', [
+                    {
+                        'data': item.data_ocorrencia,
+                        'tipo': item.tipo.descricao,
+                        'categoria': item.tipo.get_categoria_display(),
+                        'descricao': item.descricao,
+                        'medida_tomada': item.medida_tomada,
+                        'registada_por': item.registada_por.nome,
+                        'observacao': item.observacao,
+                    }
+                    for item in ocorrencias_qs
+                ], 'Sem ocorrências registadas.'),
+            ]
+
+        return self.report_response('Relatório de Alunos', params, rows, sections=sections)
+
+
+class DisciplinasReportView(ReportAPIView):
+    def get(self, request):
+        params = request.query_params
+        queryset = Disciplina.objects.order_by('nome')
+        if params.get('disciplina'):
+            queryset = queryset.filter(id=params.get('disciplina'))
+        if params.get('estado'):
+            queryset = queryset.filter(estado=params.get('estado'))
+
+        rows = [
+            {
+                'nome': item.nome,
+                'codigo': item.codigo,
+                'estado': item.get_estado_display(),
+                'observacao': item.observacao,
+            }
+            for item in queryset
+        ]
+        sections = [self.table_section('Disciplinas', rows, 'Sem disciplinas.')]
+        if params.get('disciplina') and rows:
+            disciplina = queryset.first()
+            lecionacoes_qs = disciplina.lecionacoes.select_related('professor', 'turma')
+            pct_qs = PCT.objects.filter(lecionacao__disciplina=disciplina).select_related('lecionacao__professor', 'lecionacao__turma').annotate(
+                resultados_count=Count('resultados', distinct=True),
+                alunos_count=Count('lecionacao__turma__alunos', distinct=True),
+                media=Avg('resultados__nota'),
+                maior_nota=Max('resultados__nota'),
+                menor_nota=Min('resultados__nota'),
+            )
+            controlo_qs = ControloAula.objects.filter(lecionacao__disciplina=disciplina).select_related('lecionacao__professor', 'lecionacao__turma')
+            sections = [
+                self.detail_section('Identificação', rows[0]),
+                self.table_section('Leccionações', [
+                    {
+                        'professor': item.professor.nome,
+                        'turma': str(item.turma),
+                        'classe': item.turma.classe,
+                        'ano_lectivo': item.ano_lectivo,
+                    }
+                    for item in lecionacoes_qs
+                ], 'Sem leccionações registadas.'),
+                self.table_section('PCT', [
+                    {
+                        'professor': item.lecionacao.professor.nome,
+                        'turma': str(item.lecionacao.turma),
+                        'trimestre': pct_trimestre_label(item.trimestre),
+                        'data_aplicacao': item.data_aplicacao,
+                        'estado_resultados': pct_status(item.resultados_count, item.alunos_count),
+                        'media': round(float(item.media), 2) if item.media is not None else None,
+                        'maior_nota': item.maior_nota,
+                        'menor_nota': item.menor_nota,
+                    }
+                    for item in pct_qs
+                ], 'Sem PCT registadas.'),
+                self.table_section('Controlo de Aulas', [
+                    {
+                        'professor': item.lecionacao.professor.nome,
+                        'turma': str(item.lecionacao.turma),
+                        'data': item.data,
+                        'aula_assistida': 'Sim' if item.aula_assistida else 'Não',
+                    }
+                    for item in controlo_qs
+                ], 'Sem controlo de aulas registado.'),
+            ]
+
+        return self.report_response('Relatório de Disciplinas', params, rows, sections=sections)
+
+
+class LecionacoesReportView(ReportAPIView):
+    def get(self, request):
+        params = request.query_params
+        queryset = Lecionacao.objects.select_related('professor', 'disciplina', 'turma').order_by('ano_lectivo', 'turma__classe', 'disciplina__nome')
+        if params.get('lecionacao'):
+            queryset = queryset.filter(id=params.get('lecionacao'))
+        if params.get('ano_lectivo'):
+            queryset = queryset.filter(ano_lectivo=params.get('ano_lectivo'))
+        if params.get('professor'):
+            queryset = queryset.filter(professor_id=params.get('professor'))
+        if params.get('disciplina'):
+            queryset = queryset.filter(disciplina_id=params.get('disciplina'))
+        if params.get('turma'):
+            queryset = queryset.filter(turma_id=params.get('turma'))
+
+        rows = [
+            {
+                'professor': item.professor.nome,
+                'disciplina': item.disciplina.nome,
+                'turma': str(item.turma),
+                'classe': item.turma.classe,
+                'ano_lectivo': item.ano_lectivo,
+                'estado': item.get_estado_display(),
+                'observacao': item.observacao,
+            }
+            for item in queryset
+        ]
+        sections = [self.table_section('Leccionações', rows, 'Sem leccionações.')]
+        if params.get('lecionacao') and rows:
+            lecionacao = queryset.first()
+            pct_qs = lecionacao.pct.annotate(resultados_count=Count('resultados', distinct=True), media=Avg('resultados__nota'))
+            sections = [
+                self.detail_section('Contexto Pedagógico', rows[0]),
+                self.table_section('Controlo de Aulas', [
+                    {
+                        'data': item.data,
+                        'aula_assistida': 'Sim' if item.aula_assistida else 'Não',
+                        'observacao': item.observacao,
+                    }
+                    for item in lecionacao.controlos_aulas.all()
+                ], 'Sem controlo de aulas registado.'),
+                self.table_section('PCT', [
+                    {
+                        'trimestre': pct_trimestre_label(item.trimestre),
+                        'data_aplicacao': item.data_aplicacao,
+                        'resultados': item.resultados_count,
+                        'media': round(float(item.media), 2) if item.media is not None else None,
+                    }
+                    for item in pct_qs
+                ], 'Sem PCT registadas.'),
+                self.table_section('Resultados PCT', [
+                    {
+                        'aluno': item.aluno.nome,
+                        'trimestre': pct_trimestre_label(item.pct.trimestre),
+                        'nota': item.nota,
+                    }
+                    for item in ResultadoPCT.objects.filter(pct__lecionacao=lecionacao).select_related('aluno', 'pct')
+                ], 'Sem resultados PCT.'),
+            ]
+
+        return self.report_response('Relatório de Leccionações', params, rows, sections=sections)
 
 
 class PlanificacoesReportView(ReportAPIView):
@@ -203,6 +552,8 @@ class ControloAulasReportView(ReportAPIView):
         params = request.query_params
         if params.get('ano_lectivo'):
             queryset = queryset.filter(lecionacao__ano_lectivo=params.get('ano_lectivo'))
+        if params.get('pct'):
+            queryset = queryset.filter(id=params.get('pct'))
         if params.get('professor'):
             queryset = queryset.filter(lecionacao__professor_id=params.get('professor'))
         if params.get('disciplina'):
@@ -272,12 +623,28 @@ class PCTReportView(ReportAPIView):
                 'cobertura': percent(item.resultados_count, item.alunos_count),
             })
 
+        sections = [self.table_section('PCT', rows, 'Sem PCT registadas.')]
+        if params.get('pct') and rows:
+            pct_obj = queryset.first()
+            resultados_qs = pct_obj.resultados.select_related('aluno')
+            sections = [
+                self.detail_section('Identificação da PCT', rows[0]),
+                self.table_section('Resultados', [
+                    {
+                        'numero': item.aluno.numero,
+                        'aluno': item.aluno.nome,
+                        'nota': item.nota,
+                    }
+                    for item in resultados_qs
+                ], 'Sem resultados PCT.'),
+            ]
+
         return self.report_response('Relatório PCT', params, rows, {
             'total': len(rows),
             'completas': completas,
             'parciais': parciais,
             'nao_lancadas': nao_lancadas,
-        })
+        }, sections=sections)
 
 
 class DesempenhoPCTReportView(ReportAPIView):

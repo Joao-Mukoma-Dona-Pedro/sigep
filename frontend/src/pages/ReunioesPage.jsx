@@ -18,16 +18,16 @@ const initialForm = {
 };
 
 function getErrorMessage(error) {
-  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
-  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'Reunião não encontrada.';
+  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'ReuniÃ£o nÃ£o encontrada.';
   if (error.response.status === 400) {
     const data = error.response.data;
     if (data?.detail) return data.detail;
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulário.';
+    return firstMessage || 'Verifique os dados do formulÃ¡rio.';
   }
   return 'Ocorreu um erro inesperado. Tente novamente.';
 }
@@ -54,7 +54,7 @@ function buildPayload(form) {
 }
 
 function ReuniaoFormModal({ mode, form, onChange, onClose, onSubmit, isSubmitting }) {
-  const title = mode === 'edit' ? 'Editar Reunião' : 'Nova Reunião';
+  const title = mode === 'edit' ? 'Editar ReuniÃ£o' : 'Nova ReuniÃ£o';
 
   return (
     <>
@@ -63,7 +63,7 @@ function ReuniaoFormModal({ mode, form, onChange, onClose, onSubmit, isSubmittin
           <form className="modal-content sigep-modal" onSubmit={onSubmit}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow mb-1">Reuniões</p>
+                <p className="eyebrow mb-1">ReuniÃµes</p>
                 <h2 className="modal-title h5">{title}</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
@@ -90,7 +90,7 @@ function ReuniaoFormModal({ mode, form, onChange, onClose, onSubmit, isSubmittin
                     name="assunto"
                     value={form.assunto}
                     onChange={onChange}
-                    placeholder="Ex.: Acompanhamento pedagógico do trimestre"
+                    placeholder="Ex.: Acompanhamento pedagÃ³gico do trimestre"
                     required
                   />
                 </div>
@@ -103,11 +103,11 @@ function ReuniaoFormModal({ mode, form, onChange, onClose, onSubmit, isSubmittin
                     rows="3"
                     value={form.participantes}
                     onChange={onChange}
-                    placeholder="Ex.: Diretor Pedagógico; Coordenadores; Professores"
+                    placeholder="Ex.: Diretor PedagÃ³gico; Coordenadores; Professores"
                   />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="decisoes">Decisões</label>
+                  <label className="form-label" htmlFor="decisoes">DecisÃµes</label>
                   <textarea
                     id="decisoes"
                     className="form-control"
@@ -118,7 +118,7 @@ function ReuniaoFormModal({ mode, form, onChange, onClose, onSubmit, isSubmittin
                   />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -222,10 +222,10 @@ function ReunioesPage() {
     try {
       if (modalMode === 'edit' && selected) {
         await updateReuniao(selected.id, buildPayload(form));
-        setSuccess('Reunião atualizada com sucesso.');
+        setSuccess('ReuniÃ£o atualizada com sucesso.');
       } else {
         await createReuniao(buildPayload(form));
-        setSuccess('Reunião criada com sucesso.');
+        setSuccess('ReuniÃ£o criada com sucesso.');
       }
       closeModal();
       await loadReunioes(page);
@@ -237,13 +237,13 @@ function ReunioesPage() {
   }
 
   async function handleDelete(reuniao) {
-    const confirmed = window.confirm('Tem a certeza de que deseja eliminar esta reunião?');
+    const confirmed = window.confirm('Tem a certeza de que deseja eliminar esta reuniÃ£o?');
     if (!confirmed) return;
     setError('');
     setSuccess('');
     try {
       await deleteReuniao(reuniao.id);
-      setSuccess('Reunião eliminada com sucesso.');
+      setSuccess('ReuniÃ£o eliminada com sucesso.');
       await loadReunioes(page);
     } catch (requestError) {
       setError(getErrorMessage(requestError));
@@ -258,17 +258,15 @@ function ReunioesPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Reuniões"
-        eyebrow="Gestão Pedagógica"
-        description="Registo administrativo das reuniões realizadas no âmbito da gestão pedagógica."
-        breadcrumbs={['Reuniões']}
-        actions={<button className="btn btn-primary" type="button" onClick={openCreateModal}><i className="bi bi-plus-lg" />Nova Reunião</button>}
+        title="ReuniÃµes"
+        breadcrumbs={['ReuniÃµes']}
+        actions={<button className="btn btn-primary" type="button" onClick={openCreateModal}><i className="bi bi-plus-lg" />Nova ReuniÃ£o</button>}
       />
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      <section className="sigep-toolbar" aria-label="Filtros de reuniões">
+      <section className="sigep-toolbar" aria-label="Filtros de reuniÃµes">
         <div className="search-control">
           <i className="bi bi-search" aria-hidden="true" />
           <input
@@ -301,13 +299,13 @@ function ReunioesPage() {
                 <th>Data</th>
                 <th>Assunto</th>
                 <th>Participantes</th>
-                <th>Decisões</th>
-                <th className="text-end">Ações</th>
+                <th>DecisÃµes</th>
+                <th className="text-end">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading && <tr><td colSpan="5" className="text-center text-muted py-4">A carregar reuniões...</td></tr>}
-              {!isLoading && reunioes.length === 0 && <tr><td colSpan="5" className="text-center text-muted py-4">Nenhuma reunião encontrada.</td></tr>}
+              {isLoading && <tr><td colSpan="5" className="text-center text-muted py-4">A carregar reuniÃµes...</td></tr>}
+              {!isLoading && reunioes.length === 0 && <tr><td colSpan="5" className="text-center text-muted py-4">Nenhuma reuniÃ£o encontrada.</td></tr>}
               {!isLoading && reunioes.map((item) => (
                 <tr key={item.id}>
                   <td>{formatDate(item.data)}</td>
@@ -328,7 +326,7 @@ function ReunioesPage() {
         </div>
       </section>
 
-      <nav aria-label="Paginação de reuniões" className="sigep-pagination">
+      <nav aria-label="PaginaÃ§Ã£o de reuniÃµes" className="sigep-pagination">
         <span>{pagination.count} registo{pagination.count === 1 ? '' : 's'} encontrado{pagination.count === 1 ? '' : 's'}</span>
         <ul className="pagination pagination-sm mb-0">
           <li className={`page-item ${!pagination.previous ? 'disabled' : ''}`}><button className="page-link" type="button" onClick={() => changePage(page - 1)}>Anterior</button></li>

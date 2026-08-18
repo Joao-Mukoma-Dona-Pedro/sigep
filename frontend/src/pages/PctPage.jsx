@@ -20,15 +20,15 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
-    return 'A sua sessão expirou. Entre novamente no SIGEP.';
+    return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
   }
 
   if (error.response.status === 404) {
-    return 'PCT não encontrada.';
+    return 'PCT nÃ£o encontrada.';
   }
 
   if (error.response.status === 400) {
@@ -38,7 +38,7 @@ function getErrorMessage(error) {
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulário.';
+    return firstMessage || 'Verifique os dados do formulÃ¡rio.';
   }
 
   return 'Ocorreu um erro inesperado. Tente novamente.';
@@ -51,16 +51,16 @@ function formatDate(value) {
 
 function formatTrimestre(value) {
   const labels = {
-    1: '1.º Trimestre',
-    2: '2.º Trimestre',
-    3: '3.º Trimestre',
+    1: '1.Âº Trimestre',
+    2: '2.Âº Trimestre',
+    3: '3.Âº Trimestre',
   };
   return labels[value] || '-';
 }
 
 function formatResultadosEstado(value) {
   const labels = {
-    NENHUM: 'Não lançada',
+    NENHUM: 'NÃ£o lanÃ§ada',
     PARCIAL: 'Parcial',
     COMPLETO: 'Completa',
   };
@@ -93,7 +93,7 @@ function DerivedInfo({ lecionacao }) {
   if (!lecionacao) {
     return (
       <div className="alert alert-info mb-0">
-        Selecione uma lecionação para visualizar professor, disciplina, turma e ano lectivo.
+        Selecione uma leccionaÃ§Ã£o para visualizar professor, disciplina, turma e ano lectivo.
       </div>
     );
   }
@@ -149,7 +149,7 @@ function PctFormModal({
             <div className="modal-body">
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label" htmlFor="lecionacao">Lecionação</label>
+                  <label className="form-label" htmlFor="lecionacao">LeccionaÃ§Ã£o</label>
                   <select
                     id="lecionacao"
                     className="form-select"
@@ -158,7 +158,7 @@ function PctFormModal({
                     onChange={onChange}
                     required
                   >
-                    <option value="">Selecione uma lecionação</option>
+                    <option value="">Selecione uma leccionaÃ§Ã£o</option>
                     {lecionacoes.map((lecionacao) => (
                       <option key={lecionacao.id} value={lecionacao.id}>
                         {getLecionacaoLabel(lecionacao)}
@@ -181,13 +181,13 @@ function PctFormModal({
                     onChange={onChange}
                     required
                   >
-                    <option value="1">1.º Trimestre</option>
-                    <option value="2">2.º Trimestre</option>
-                    <option value="3">3.º Trimestre</option>
+                    <option value="1">1.Âº Trimestre</option>
+                    <option value="2">2.Âº Trimestre</option>
+                    <option value="3">3.Âº Trimestre</option>
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" htmlFor="data_aplicacao">Data de Aplicação</label>
+                  <label className="form-label" htmlFor="data_aplicacao">Data de AplicaÃ§Ã£o</label>
                   <input
                     id="data_aplicacao"
                     className="form-control"
@@ -199,7 +199,7 @@ function PctFormModal({
                   />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -403,8 +403,6 @@ function PctPage() {
     <div className="page-stack">
       <PageHeader
         title="PCT"
-        eyebrow="Provas Comuns Trimestrais"
-        description="Registo e acompanhamento das Provas Comuns Trimestrais realizadas em cada trimestre."
         breadcrumbs={['PCT']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
@@ -454,9 +452,9 @@ function PctPage() {
         </select>
         <select className="form-select" value={trimestre} onChange={(event) => resetAndSetPage(event, setTrimestre)}>
           <option value="">Todos os trimestres</option>
-          <option value="1">1.º Trimestre</option>
-          <option value="2">2.º Trimestre</option>
-          <option value="3">3.º Trimestre</option>
+          <option value="1">1.Âº Trimestre</option>
+          <option value="2">2.Âº Trimestre</option>
+          <option value="3">3.Âº Trimestre</option>
         </select>
         <input
           className="form-control"
@@ -466,7 +464,7 @@ function PctPage() {
         />
         <select className="form-select" value={resultadosEstado} onChange={(event) => resetAndSetPage(event, setResultadosEstado)}>
           <option value="">Todos os estados</option>
-          <option value="NENHUM">Não lançada</option>
+          <option value="NENHUM">NÃ£o lanÃ§ada</option>
           <option value="PARCIAL">Parcial</option>
           <option value="COMPLETO">Completa</option>
         </select>
@@ -493,9 +491,9 @@ function PctPage() {
                 <th>Turma</th>
                 <th>Ano Lectivo</th>
                 <th>Trimestre</th>
-                <th>Data de Aplicação</th>
+                <th>Data de AplicaÃ§Ã£o</th>
                 <th>Estado das Notas</th>
-                <th>Observação</th>
+                <th>ObservaÃ§Ã£o</th>
                 <th className="text-end">Acoes</th>
               </tr>
             </thead>

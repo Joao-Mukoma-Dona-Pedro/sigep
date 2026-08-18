@@ -21,17 +21,17 @@ const initialForm = {
 };
 
 function getErrorMessage(error) {
-  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
-  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'Lecionação não encontrada.';
-  if (error.response.status === 409) return error.response.data?.detail || 'Não foi possível eliminar esta lecionação.';
+  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'LeccionaÃ§Ã£o nÃ£o encontrada.';
+  if (error.response.status === 409) return error.response.data?.detail || 'NÃ£o foi possÃ­vel eliminar esta leccionaÃ§Ã£o.';
   if (error.response.status === 400) {
     const data = error.response.data;
     if (data?.detail) return data.detail;
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulário.';
+    return firstMessage || 'Verifique os dados do formulÃ¡rio.';
   }
   return 'Ocorreu um erro inesperado. Tente novamente.';
 }
@@ -57,13 +57,13 @@ function DerivedInfo({ turma }) {
       <div className="detail-item"><span>Classe</span><strong>{turma?.classe || '-'}</strong></div>
       <div className="detail-item"><span>Sala</span><strong>{turma?.sala || '-'}</strong></div>
       <div className="detail-item"><span>Ano Lectivo</span><strong>{turma?.ano_lectivo || '-'}</strong></div>
-      <div className="detail-item"><span>Horário</span><strong>{turma?.horario || 'Horário Regular'}</strong></div>
+      <div className="detail-item"><span>HorÃ¡rio</span><strong>{turma?.horario || 'HorÃ¡rio Regular'}</strong></div>
     </div>
   );
 }
 
 function LecionacaoFormModal({ mode, form, professores, disciplinas, turmas, onChange, onClose, onSubmit, isSubmitting }) {
-  const title = mode === 'edit' ? 'Editar Lecionação' : 'Nova Lecionação';
+  const title = mode === 'edit' ? 'Editar LeccionaÃ§Ã£o' : 'Nova LeccionaÃ§Ã£o';
   const selectedTurma = turmas.find((item) => String(item.id) === String(form.turma));
 
   return (
@@ -73,7 +73,7 @@ function LecionacaoFormModal({ mode, form, professores, disciplinas, turmas, onC
           <form className="modal-content sigep-modal" onSubmit={onSubmit}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow mb-1">Lecionações</p>
+                <p className="eyebrow mb-1">LeccionaÃ§Ãµes</p>
                 <h2 className="modal-title h5">{title}</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
@@ -112,7 +112,7 @@ function LecionacaoFormModal({ mode, form, professores, disciplinas, turmas, onC
                   <DerivedInfo turma={selectedTurma} />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea id="observacao" className="form-control" name="observacao" rows="4" value={form.observacao} onChange={onChange} />
                 </div>
               </div>
@@ -232,10 +232,10 @@ function LecionacoesPage() {
     try {
       if (modalMode === 'edit' && selected) {
         await updateLecionacao(selected.id, buildPayload(form));
-        setSuccess('Lecionação atualizada com sucesso.');
+        setSuccess('LeccionaÃ§Ã£o atualizada com sucesso.');
       } else {
         await createLecionacao(buildPayload(form));
-        setSuccess('Lecionação criada com sucesso.');
+        setSuccess('LeccionaÃ§Ã£o criada com sucesso.');
       }
       closeModal();
       await loadLecionacoes(page);
@@ -247,13 +247,13 @@ function LecionacoesPage() {
   }
 
   async function handleDelete(lecionacao) {
-    const confirmed = window.confirm(`Eliminar a lecionação de "${lecionacao.professor_info?.nome}"?`);
+    const confirmed = window.confirm(`Eliminar a leccionaÃ§Ã£o de "${lecionacao.professor_info?.nome}"?`);
     if (!confirmed) return;
     setError('');
     setSuccess('');
     try {
       await deleteLecionacao(lecionacao.id);
-      setSuccess('Lecionação eliminada com sucesso.');
+      setSuccess('LeccionaÃ§Ã£o eliminada com sucesso.');
       await loadLecionacoes(page);
     } catch (requestError) {
       setError(getErrorMessage(requestError));
@@ -268,17 +268,15 @@ function LecionacoesPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Lecionações"
-        eyebrow="Relação Pedagógica"
-        description="Gestão da relação oficial entre Professor, Disciplina, Turma e Ano Lectivo."
-        breadcrumbs={['Lecionações']}
-        actions={<button className="btn btn-primary" type="button" onClick={openCreateModal}><i className="bi bi-plus-lg" />Nova Lecionação</button>}
+        title="LeccionaÃ§Ãµes"
+        breadcrumbs={['LeccionaÃ§Ãµes']}
+        actions={<button className="btn btn-primary" type="button" onClick={openCreateModal}><i className="bi bi-plus-lg" />Nova LeccionaÃ§Ã£o</button>}
       />
 
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      <section className="sigep-toolbar" aria-label="Filtros de lecionações">
+      <section className="sigep-toolbar" aria-label="Filtros de leccionaÃ§Ãµes">
         <div className="search-control">
           <i className="bi bi-search" aria-hidden="true" />
           <input className="form-control" type="search" placeholder="Pesquisar por professor, disciplina, turma ou ano" value={search} onChange={(event) => resetAndSetPage(event, setSearch)} />
@@ -313,14 +311,14 @@ function LecionacoesPage() {
                 <th>Disciplina</th>
                 <th>Turma</th>
                 <th>Ano Lectivo</th>
-                <th>Horário</th>
+                <th>HorÃ¡rio</th>
                 <th>Estado</th>
-                <th className="text-end">Ações</th>
+                <th className="text-end">AÃ§Ãµes</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading && <tr><td colSpan="7" className="text-center text-muted py-4">A carregar lecionações...</td></tr>}
-              {!isLoading && lecionacoes.length === 0 && <tr><td colSpan="7" className="text-center text-muted py-4">Nenhuma lecionação encontrada.</td></tr>}
+              {isLoading && <tr><td colSpan="7" className="text-center text-muted py-4">A carregar leccionaÃ§Ãµes...</td></tr>}
+              {!isLoading && lecionacoes.length === 0 && <tr><td colSpan="7" className="text-center text-muted py-4">Nenhuma leccionaÃ§Ã£o encontrada.</td></tr>}
               {!isLoading && lecionacoes.map((item) => (
                 <tr key={item.id}>
                   <td><strong>{item.professor_info?.nome || '-'}</strong></td>
@@ -343,7 +341,7 @@ function LecionacoesPage() {
         </div>
       </section>
 
-      <nav aria-label="Paginação de lecionações" className="sigep-pagination">
+      <nav aria-label="PaginaÃ§Ã£o de leccionaÃ§Ãµes" className="sigep-pagination">
         <span>{pagination.count} registo{pagination.count === 1 ? '' : 's'} encontrado{pagination.count === 1 ? '' : 's'}</span>
         <ul className="pagination pagination-sm mb-0">
           <li className={`page-item ${!pagination.previous ? 'disabled' : ''}`}><button className="page-link" type="button" onClick={() => changePage(page - 1)}>Anterior</button></li>

@@ -51,14 +51,13 @@ function DashboardLayout() {
       <div className="workspace">
         <header className="topbar">
           <div>
-            <p className="eyebrow">Administrador</p>
-            <h2>Subdiretor/Diretor Pedagógico</h2>
+            <h2>SUBDIRECTOR PEDAGÓGICO</h2>
           </div>
           <div className="user-menu">
             <div className="user-avatar">{user?.full_name?.charAt(0) || 'S'}</div>
             <div>
-              <strong>{user?.full_name || 'Subdiretor/Diretor Pedagógico'}</strong>
-              <small>{user?.email || 'admin@sigep.ao'}</small>
+              <strong>{user?.full_name || 'Subdirector Pedagógico'}</strong>
+              {user?.email && <small>{user.email}</small>}
             </div>
             <NavLink className="btn btn-outline-secondary btn-sm" to="/configuracoes">
               <i className="bi bi-gear" aria-hidden="true" />
@@ -76,8 +75,7 @@ function DashboardLayout() {
         </main>
 
         <footer className="app-footer">
-          <span>SIGEP - Sistema Integrado de Gestão Pedagógica</span>
-          <span>Interface integrada com API</span>
+          <span>SIGEP - Sistema de Gestão Pedagógica</span>
         </footer>
       </div>
     </div>

@@ -24,7 +24,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -153,7 +153,7 @@ function AlunoFormModal({ mode, form, turmas, onChange, onClose, onSubmit, isSub
                     value={form.sexo}
                     onChange={onChange}
                   >
-                    <option value="">Não informado</option>
+                    <option value="">NÃ£o informado</option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
                   </select>
@@ -192,7 +192,7 @@ function AlunoFormModal({ mode, form, turmas, onChange, onClose, onSubmit, isSub
                   />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -368,8 +368,6 @@ function AlunosPage() {
     <div className="page-stack">
       <PageHeader
         title="Alunos"
-        eyebrow="Gestão pedagógica"
-        description="Registo e acompanhamento dos alunos por turma."
         breadcrumbs={['Alunos']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>

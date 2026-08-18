@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
@@ -26,7 +26,7 @@ function LoginPage() {
       await login(form.email, form.password);
       navigate(redirectTo, { replace: true });
     } catch {
-      setError('E-mail ou palavra-passe inválida.');
+      setError('E-mail ou palavra-passe invÃ¡lida.');
     } finally {
       setIsSubmitting(false);
     }

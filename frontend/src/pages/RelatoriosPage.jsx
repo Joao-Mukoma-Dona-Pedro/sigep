@@ -4,88 +4,30 @@ import PageHeader from '../components/ui/PageHeader';
 import { getRelatorio, listRelatorioOptions } from '../services/relatorioService';
 
 const reportTypes = [
-  { key: 'professores', title: 'Relatório de Professores', icon: 'bi-person-badge', description: 'Professores e lecionações associadas.' },
-  { key: 'turmas', title: 'Relatório de Turmas', icon: 'bi-grid-3x3-gap', description: 'Turmas, diretores e quantidade de alunos.' },
-  { key: 'alunos', title: 'Relatório de Alunos', icon: 'bi-mortarboard', description: 'Alunos por turma, classe e estado.' },
-  { key: 'planificacoes', title: 'Relatório de Planificações', icon: 'bi-journal-check', description: 'Entrega das planificações dos professores.' },
-  { key: 'controloAulas', title: 'Relatório de Controlo de Aulas', icon: 'bi-calendar2-check', description: 'Aulas controladas e assistidas.' },
-  { key: 'pct', title: 'Relatório PCT', icon: 'bi-file-earmark-text', description: 'Provas Comuns Trimestrais e estado das notas.' },
-  { key: 'desempenhoPCT', title: 'Relatório de Desempenho PCT', icon: 'bi-graph-up-arrow', description: 'Indicadores calculados a partir dos Resultados PCT.' },
-  { key: 'ocorrencias', title: 'Relatório de Ocorrências', icon: 'bi-exclamation-triangle', description: 'Ocorrências por aluno, turma, tipo e categoria.' },
-  { key: 'reunioes', title: 'Relatório de Reuniões', icon: 'bi-people', description: 'Registos administrativos das reuniões pedagógicas.' },
+  { key: 'professores', title: 'Professor' },
+  { key: 'alunos', title: 'Aluno' },
+  { key: 'turmas', title: 'Turma' },
+  { key: 'disciplinas', title: 'Disciplina' },
+  { key: 'lecionacoes', title: 'Leccionação' },
+  { key: 'planificacoes', title: 'Planificação' },
+  { key: 'controloAulas', title: 'Controlo de Aulas' },
+  { key: 'pct', title: 'PCT' },
+  { key: 'desempenhoPCT', title: 'Desempenho PCT' },
+  { key: 'ocorrencias', title: 'Ocorrências' },
+  { key: 'reunioes', title: 'Reuniões' },
 ];
 
 const columnsByType = {
-  professores: [
-    ['nome', 'Nome'],
-    ['telefone', 'Telefone'],
-    ['email', 'E-mail'],
-    ['estado', 'Estado'],
-    ['data_entrada', 'Data de Entrada'],
-    ['lecionacoes', 'Lecionações'],
-  ],
-  turmas: [
-    ['classe', 'Classe'],
-    ['sala', 'Turma/Sala'],
-    ['ano_lectivo', 'Ano Lectivo'],
-    ['diretor_turma', 'Diretor de Turma'],
-    ['quantidade_alunos', 'Alunos'],
-    ['capacidade', 'Capacidade'],
-    ['estado', 'Estado'],
-  ],
-  alunos: [
-    ['numero', 'Número'],
-    ['nome', 'Nome'],
-    ['turma', 'Turma'],
-    ['classe', 'Classe'],
-    ['estado', 'Estado'],
-    ['encarregado_educacao', 'Encarregado de Educação'],
-  ],
-  planificacoes: [
-    ['professor', 'Professor'],
-    ['trimestre', 'Trimestre'],
-    ['data_entrega', 'Data de Entrega'],
-    ['situacao_entrega', 'Situação'],
-    ['observacao', 'Observação'],
-  ],
-  controloAulas: [
-    ['professor', 'Professor'],
-    ['disciplina', 'Disciplina'],
-    ['turma', 'Turma'],
-    ['ano_lectivo', 'Ano Lectivo'],
-    ['data', 'Data'],
-    ['aula_assistida', 'Aula Assistida'],
-    ['observacao', 'Observação'],
-  ],
-  pct: [
-    ['professor', 'Professor'],
-    ['disciplina', 'Disciplina'],
-    ['turma', 'Turma'],
-    ['classe', 'Classe'],
-    ['ano_lectivo', 'Ano Lectivo'],
-    ['trimestre', 'Trimestre'],
-    ['data_aplicacao', 'Data de Aplicação'],
-    ['estado_notas', 'Estado das Notas'],
-    ['cobertura', 'Cobertura (%)'],
-  ],
-  ocorrencias: [
-    ['aluno', 'Aluno'],
-    ['turma', 'Turma'],
-    ['classe', 'Classe'],
-    ['data', 'Data'],
-    ['tipo', 'Tipo'],
-    ['categoria', 'Categoria'],
-    ['descricao', 'Descrição'],
-    ['medida_tomada', 'Medida Tomada'],
-    ['registada_por', 'Registada Por'],
-  ],
-  reunioes: [
-    ['data', 'Data'],
-    ['assunto', 'Assunto'],
-    ['participantes', 'Participantes'],
-    ['decisoes', 'Decisões'],
-    ['observacao', 'Observação'],
-  ],
+  professores: [['nome', 'Nome'], ['telefone', 'Telefone'], ['email', 'E-mail'], ['estado', 'Estado'], ['data_entrada', 'Data de Entrada'], ['lecionacoes', 'Leccionações']],
+  alunos: [['numero', 'Número'], ['nome', 'Nome'], ['turma', 'Turma'], ['classe', 'Classe'], ['estado', 'Estado'], ['encarregado_educacao', 'Encarregado de Educação']],
+  turmas: [['classe', 'Classe'], ['sala', 'Turma/Sala'], ['periodo', 'Período'], ['turno', 'Turno'], ['ano_lectivo', 'Ano Lectivo'], ['diretor_turma', 'Director de Turma'], ['quantidade_alunos', 'Alunos'], ['capacidade', 'Capacidade'], ['estado', 'Estado']],
+  disciplinas: [['nome', 'Nome'], ['codigo', 'Código'], ['estado', 'Estado'], ['observacao', 'Observação']],
+  lecionacoes: [['professor', 'Professor'], ['disciplina', 'Disciplina'], ['turma', 'Turma'], ['classe', 'Classe'], ['ano_lectivo', 'Ano Lectivo'], ['estado', 'Estado']],
+  planificacoes: [['professor', 'Professor'], ['trimestre', 'Trimestre'], ['data_entrega', 'Data de Entrega'], ['situacao_entrega', 'Situação'], ['observacao', 'Observação']],
+  controloAulas: [['professor', 'Professor'], ['disciplina', 'Disciplina'], ['turma', 'Turma'], ['ano_lectivo', 'Ano Lectivo'], ['data', 'Data'], ['aula_assistida', 'Aula Assistida'], ['observacao', 'Observação']],
+  pct: [['professor', 'Professor'], ['disciplina', 'Disciplina'], ['turma', 'Turma'], ['classe', 'Classe'], ['ano_lectivo', 'Ano Lectivo'], ['trimestre', 'Trimestre'], ['data_aplicacao', 'Data de Aplicação'], ['estado_notas', 'Estado das Notas'], ['cobertura', 'Cobertura (%)']],
+  ocorrencias: [['aluno', 'Aluno'], ['turma', 'Turma'], ['classe', 'Classe'], ['data', 'Data'], ['tipo', 'Tipo'], ['categoria', 'Categoria'], ['descricao', 'Descrição'], ['medida_tomada', 'Medida Tomada'], ['registada_por', 'Registada Por']],
+  reunioes: [['data', 'Data'], ['assunto', 'Assunto'], ['participantes', 'Participantes'], ['decisoes', 'Decisões'], ['observacao', 'Observação']],
 };
 
 const initialFilters = {
@@ -95,6 +37,7 @@ const initialFilters = {
   aluno: '',
   professor: '',
   disciplina: '',
+  lecionacao: '',
   trimestre: '',
   estado: '',
   entregou: '',
@@ -108,7 +51,7 @@ const initialFilters = {
 };
 
 function getErrorMessage(error) {
-  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está activo.';
   if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
   if (error.response.status === 400) {
     const data = error.response.data;
@@ -122,11 +65,24 @@ function getErrorMessage(error) {
 function formatValue(value) {
   if (value === null || value === undefined || value === '') return '-';
   if (typeof value === 'number') return value;
+  if (typeof value === 'object') {
+    if (value.nome) return value.numero ? `${value.numero} - ${value.nome}` : value.nome;
+    return JSON.stringify(value);
+  }
   return String(value);
+}
+
+function humanizeKey(key) {
+  return key.replaceAll('_', ' ').replaceAll('pct', 'PCT');
 }
 
 function summaryEntries(summary = {}) {
   return Object.entries(summary).filter(([, value]) => !Array.isArray(value) && typeof value !== 'object');
+}
+
+function columnsFromRows(rows = []) {
+  const keys = [...new Set(rows.flatMap((row) => Object.keys(row || {})))];
+  return keys.map((key) => [key, humanizeKey(key)]);
 }
 
 function buildCsv(columns, rows) {
@@ -146,6 +102,77 @@ function downloadCsv(filename, content) {
   URL.revokeObjectURL(url);
 }
 
+function DetailSection({ items }) {
+  return (
+    <div className="report-detail-grid">
+      {Object.entries(items || {}).map(([key, value]) => (
+        <div className="detail-item" key={key}>
+          <span>{humanizeKey(key)}</span>
+          <strong>{formatValue(value)}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DataTable({ rows = [], columns, empty = 'Sem dados.' }) {
+  const tableColumns = columns?.length ? columns : columnsFromRows(rows);
+  return (
+    <div className="table-responsive">
+      <table className="table sigep-table align-middle">
+        <thead>
+          <tr>{tableColumns.map(([, label]) => <th key={label}>{label}</th>)}</tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && <tr><td colSpan={Math.max(tableColumns.length, 1)} className="text-center text-muted py-4">{empty}</td></tr>}
+          {rows.map((row, index) => (
+            <tr key={index}>
+              {tableColumns.map(([key]) => <td key={key}>{formatValue(row[key])}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AnalysisSection({ analysis }) {
+  const tables = [
+    ['Evolução', analysis?.evolucao],
+    ['Tabela', analysis?.tabela],
+    ['Média por Turma', analysis?.media_por_turma],
+    ['Desempenho por Classe', analysis?.desempenho_por_classe],
+    ['Distribuição', analysis?.distribuicao],
+  ].filter(([, rows]) => Array.isArray(rows));
+
+  return (
+    <div className="report-section-stack">
+      {Array.isArray(analysis?.avisos) && analysis.avisos.length > 0 && (
+        <div className="alert alert-warning mb-0">{analysis.avisos.join(' ')}</div>
+      )}
+      {tables.map(([title, rows]) => (
+        <section className="report-section" key={title}>
+          <h3>{title}</h3>
+          <DataTable rows={rows} empty="Sem dados suficientes." />
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function ReportSection({ section }) {
+  return (
+    <section className="report-section">
+      <h3>{section.titulo}</h3>
+      {section.tipo === 'detalhes' ? (
+        <DetailSection items={section.items} />
+      ) : (
+        <DataTable rows={section.rows || []} empty={section.empty} />
+      )}
+    </section>
+  );
+}
+
 function RelatoriosPage() {
   const [activeType, setActiveType] = useState('professores');
   const [filters, setFilters] = useState(initialFilters);
@@ -154,6 +181,7 @@ function RelatoriosPage() {
     classes: [],
     professores: [],
     disciplinas: [],
+    lecionacoes: [],
     turmas: [],
     alunos: [],
     tipos_ocorrencia: [],
@@ -181,11 +209,18 @@ function RelatoriosPage() {
     if (filters.disciplina && String(pct.disciplina) !== String(filters.disciplina)) return false;
     return true;
   }), [options.pcts, filters]);
+  const filteredLecionacoes = useMemo(() => options.lecionacoes.filter((item) => {
+    if (filters.ano_lectivo && item.ano_lectivo !== filters.ano_lectivo) return false;
+    if (filters.professor && String(item.professor) !== String(filters.professor)) return false;
+    if (filters.disciplina && String(item.disciplina) !== String(filters.disciplina)) return false;
+    if (filters.turma && String(item.turma) !== String(filters.turma)) return false;
+    return true;
+  }), [options.lecionacoes, filters]);
 
   const rows = activeType === 'desempenhoPCT'
     ? report?.analysis?.tabela || report?.analysis?.media_por_turma || report?.analysis?.desempenho_por_classe || []
     : report?.rows || [];
-  const columns = columnsByType[activeType] || [];
+  const columns = columnsByType[activeType] || columnsFromRows(rows);
 
   useEffect(() => {
     async function loadOptions() {
@@ -208,6 +243,7 @@ function RelatoriosPage() {
         next.turma = '';
         next.aluno = '';
         next.pct = '';
+        next.lecionacao = '';
       }
       if (name === 'classe') {
         next.turma = '';
@@ -217,6 +253,7 @@ function RelatoriosPage() {
       if (name === 'turma') {
         next.aluno = '';
         next.pct = '';
+        next.lecionacao = '';
       }
       return next;
     });
@@ -224,12 +261,14 @@ function RelatoriosPage() {
 
   function cleanFilters() {
     const allowedByType = {
-      professores: ['estado', 'disciplina', 'turma', 'ano_lectivo'],
-      turmas: ['ano_lectivo', 'classe', 'estado'],
-      alunos: ['ano_lectivo', 'classe', 'turma', 'estado'],
+      professores: ['professor', 'estado', 'disciplina', 'turma', 'ano_lectivo'],
+      alunos: ['aluno', 'ano_lectivo', 'classe', 'turma', 'estado'],
+      turmas: ['turma', 'ano_lectivo', 'classe', 'estado'],
+      disciplinas: ['disciplina', 'estado'],
+      lecionacoes: ['lecionacao', 'ano_lectivo', 'professor', 'disciplina', 'turma'],
       planificacoes: ['professor', 'trimestre', 'entregou'],
       controloAulas: ['ano_lectivo', 'professor', 'disciplina', 'turma', 'data_inicio', 'data_fim'],
-      pct: ['ano_lectivo', 'professor', 'disciplina', 'turma', 'classe', 'trimestre'],
+      pct: ['pct', 'ano_lectivo', 'professor', 'disciplina', 'turma', 'classe', 'trimestre'],
       desempenhoPCT: ['tipo_analise', 'ano_lectivo', 'trimestre', 'classe', 'turma', 'disciplina', 'aluno', 'pct'],
       ocorrencias: ['ano_lectivo', 'classe', 'turma', 'aluno', 'categoria', 'tipo', 'data_inicio', 'data_fim'],
       reunioes: ['search', 'data_inicio', 'data_fim'],
@@ -251,6 +290,12 @@ function RelatoriosPage() {
     }
   }
 
+  function changeReportType(event) {
+    setActiveType(event.target.value);
+    setReport(null);
+    setError('');
+  }
+
   function handleExportCsv() {
     if (!columns.length || !rows.length) return;
     downloadCsv(`${activeType}-sigep.csv`, buildCsv(columns, rows));
@@ -260,18 +305,10 @@ function RelatoriosPage() {
     window.print();
   }
 
-  function changeReportType(type) {
-    setActiveType(type);
-    setReport(null);
-    setError('');
-  }
-
   return (
     <div className="page-stack reports-page">
       <PageHeader
         title="Relatórios"
-        eyebrow="Consulta e Exportação"
-        description="Relatórios administrativos e pedagógicos gerados a partir dos dados reais do SIGEP."
         breadcrumbs={['Relatórios']}
         actions={(
           <div className="button-cluster">
@@ -287,28 +324,51 @@ function RelatoriosPage() {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <section className="report-grid no-print">
-        {reportTypes.map((item) => (
-          <button
-            className={`report-card text-start ${activeType === item.key ? 'active' : ''}`}
-            key={item.key}
-            type="button"
-            onClick={() => changeReportType(item.key)}
-          >
-            <i className={`bi ${item.icon}`} aria-hidden="true" />
-            <h2>{item.title}</h2>
-            <p>{item.description}</p>
-          </button>
-        ))}
-      </section>
-
-      <section className="panel-card no-print">
-        <div className="panel-card-header">
-          <h2>Filtros do Relatório</h2>
-          <span>{activeReport?.title}</span>
-        </div>
-        <div className="row g-3">
-          {['professores', 'turmas', 'alunos', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
+      <section className="panel-card report-control-panel no-print">
+        <div className="row g-3 align-items-end">
+          <div className="col-md-4">
+            <label className="form-label" htmlFor="report_type">Tipo de Relatório</label>
+            <select id="report_type" className="form-select" value={activeType} onChange={changeReportType}>
+              {reportTypes.map((item) => <option key={item.key} value={item.key}>{item.title}</option>)}
+            </select>
+          </div>
+          {['professores', 'planificacoes', 'controloAulas', 'pct', 'lecionacoes'].includes(activeType) && (
+            <div className="col-md-4">
+              <label className="form-label" htmlFor="professor">Professor</label>
+              <select id="professor" className="form-select" name="professor" value={filters.professor} onChange={updateFilter}>
+                <option value="">Todos</option>
+                {options.professores.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
+              </select>
+            </div>
+          )}
+          {activeType === 'alunos' && (
+            <div className="col-md-4">
+              <label className="form-label" htmlFor="aluno">Aluno</label>
+              <select id="aluno" className="form-select" name="aluno" value={filters.aluno} onChange={updateFilter}>
+                <option value="">Todos</option>
+                {filteredAlunos.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
+              </select>
+            </div>
+          )}
+          {activeType === 'disciplinas' && (
+            <div className="col-md-4">
+              <label className="form-label" htmlFor="disciplina">Disciplina</label>
+              <select id="disciplina" className="form-select" name="disciplina" value={filters.disciplina} onChange={updateFilter}>
+                <option value="">Todas</option>
+                {options.disciplinas.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
+              </select>
+            </div>
+          )}
+          {activeType === 'lecionacoes' && (
+            <div className="col-md-4">
+              <label className="form-label" htmlFor="lecionacao">Leccionação</label>
+              <select id="lecionacao" className="form-select" name="lecionacao" value={filters.lecionacao} onChange={updateFilter}>
+                <option value="">Todas</option>
+                {filteredLecionacoes.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
+              </select>
+            </div>
+          )}
+          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="ano_lectivo">Ano Lectivo</label>
               <select id="ano_lectivo" className="form-select" name="ano_lectivo" value={filters.ano_lectivo} onChange={updateFilter}>
@@ -317,7 +377,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['turmas', 'alunos', 'pct', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
+          {['alunos', 'turmas', 'pct', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="classe">Classe</label>
               <select id="classe" className="form-select" name="classe" value={filters.classe} onChange={updateFilter}>
@@ -326,7 +386,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'alunos', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
+          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="turma">Turma</label>
               <select id="turma" className="form-select" name="turma" value={filters.turma} onChange={updateFilter}>
@@ -335,19 +395,10 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'controloAulas', 'pct'].includes(activeType) && (
+          {['professores', 'controloAulas', 'pct', 'desempenhoPCT', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
-              <label className="form-label" htmlFor="professor">Professor</label>
-              <select id="professor" className="form-select" name="professor" value={filters.professor} onChange={updateFilter}>
-                <option value="">Todos</option>
-                {options.professores.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
-              </select>
-            </div>
-          )}
-          {['professores', 'controloAulas', 'pct', 'desempenhoPCT'].includes(activeType) && (
-            <div className="col-md-3">
-              <label className="form-label" htmlFor="disciplina">Disciplina</label>
-              <select id="disciplina" className="form-select" name="disciplina" value={filters.disciplina} onChange={updateFilter}>
+              <label className="form-label" htmlFor="disciplina_filter">Disciplina</label>
+              <select id="disciplina_filter" className="form-select" name="disciplina" value={filters.disciplina} onChange={updateFilter}>
                 <option value="">Todas</option>
                 {options.disciplinas.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
               </select>
@@ -364,53 +415,48 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'turmas', 'alunos'].includes(activeType) && (
+          {['professores', 'alunos', 'turmas', 'disciplinas'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="estado">Estado</label>
               <select id="estado" className="form-select" name="estado" value={filters.estado} onChange={updateFilter}>
                 <option value="">Todos</option>
-                <option value="ATIVO">Ativo</option>
-                <option value="INATIVO">Inativo</option>
+                <option value="ATIVO">Activo</option>
+                <option value="INATIVO">Inactivo</option>
               </select>
             </div>
           )}
           {activeType === 'planificacoes' && (
-            <>
-              <div className="col-md-3">
-                <label className="form-label" htmlFor="professor_plan">Professor</label>
-                <select id="professor_plan" className="form-select" name="professor" value={filters.professor} onChange={updateFilter}>
-                  <option value="">Todos</option>
-                  {options.professores.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
-                </select>
-              </div>
-              <div className="col-md-3">
-                <label className="form-label" htmlFor="entregou">Entrega</label>
-                <select id="entregou" className="form-select" name="entregou" value={filters.entregou} onChange={updateFilter}>
-                  <option value="">Todas</option>
-                  <option value="true">Entregues</option>
-                  <option value="false">Não entregues</option>
-                </select>
-              </div>
-            </>
+            <div className="col-md-3">
+              <label className="form-label" htmlFor="entregou">Entrega</label>
+              <select id="entregou" className="form-select" name="entregou" value={filters.entregou} onChange={updateFilter}>
+                <option value="">Todas</option>
+                <option value="true">Entregues</option>
+                <option value="false">Não entregues</option>
+              </select>
+            </div>
           )}
-          {activeType === 'desempenhoPCT' && (
+          {['pct', 'desempenhoPCT'].includes(activeType) && (
             <>
-              <div className="col-md-3">
-                <label className="form-label" htmlFor="tipo_analise">Tipo de Análise</label>
-                <select id="tipo_analise" className="form-select" name="tipo_analise" value={filters.tipo_analise} onChange={updateFilter}>
-                  <option value="ano_lectivo">Ano Lectivo</option>
-                  <option value="classe">Classe</option>
-                  <option value="turma">Turma</option>
-                  <option value="individual">Individual</option>
-                </select>
-              </div>
-              <div className="col-md-3">
-                <label className="form-label" htmlFor="aluno">Aluno</label>
-                <select id="aluno" className="form-select" name="aluno" value={filters.aluno} onChange={updateFilter}>
-                  <option value="">Selecione quando necessário</option>
-                  {filteredAlunos.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
-                </select>
-              </div>
+              {activeType === 'desempenhoPCT' && (
+                <>
+                  <div className="col-md-3">
+                    <label className="form-label" htmlFor="tipo_analise">Tipo de Análise</label>
+                    <select id="tipo_analise" className="form-select" name="tipo_analise" value={filters.tipo_analise} onChange={updateFilter}>
+                      <option value="ano_lectivo">Ano Lectivo</option>
+                      <option value="classe">Classe</option>
+                      <option value="turma">Turma</option>
+                      <option value="individual">Individual</option>
+                    </select>
+                  </div>
+                  <div className="col-md-3">
+                    <label className="form-label" htmlFor="aluno_analise">Aluno</label>
+                    <select id="aluno_analise" className="form-select" name="aluno" value={filters.aluno} onChange={updateFilter}>
+                      <option value="">Seleccione quando necessário</option>
+                      {filteredAlunos.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}
+                    </select>
+                  </div>
+                </>
+              )}
               <div className="col-md-3">
                 <label className="form-label" htmlFor="pct">PCT</label>
                 <select id="pct" className="form-select" name="pct" value={filters.pct} onChange={updateFilter}>
@@ -463,54 +509,57 @@ function RelatoriosPage() {
               <input id="search" className="form-control" name="search" value={filters.search} onChange={updateFilter} placeholder="Pesquisar reuniões" />
             </div>
           )}
-        </div>
-        <div className="button-cluster mt-3">
-          <button className="btn btn-primary" type="button" onClick={generateReport} disabled={isLoading}>
-            <i className="bi bi-search" /> {isLoading ? 'A gerar...' : 'Gerar Relatório'}
-          </button>
-          <button className="btn btn-outline-secondary" type="button" onClick={() => setFilters(initialFilters)}>
-            Limpar Filtros
-          </button>
+          <div className="col-md-auto">
+            <button className="btn btn-primary w-100" type="button" onClick={generateReport} disabled={isLoading}>
+              <i className="bi bi-file-earmark-text" /> {isLoading ? 'A gerar...' : 'Gerar Relatório'}
+            </button>
+          </div>
+          <div className="col-md-auto">
+            <button className="btn btn-outline-secondary w-100" type="button" onClick={() => setFilters(initialFilters)}>
+              Limpar Filtros
+            </button>
+          </div>
         </div>
       </section>
+
+      {!report && (
+        <section className="empty-state no-print">
+          <i className="bi bi-file-earmark-bar-graph" />
+          <strong>Seleccione o tipo de relatório e gere o documento.</strong>
+          <span>Os resultados serão apresentados apenas com dados reais existentes no SIGEP.</span>
+        </section>
+      )}
 
       {report && (
         <section className="panel-card report-print-area">
           <div className="report-print-header">
             <strong>SIGEP</strong>
             <span>Sistema de Gestão Pedagógica</span>
-            <h2>{report.titulo}</h2>
-            <p>Gerado em {new Intl.DateTimeFormat('pt-AO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}</p>
+            <h2>{report.titulo || activeReport?.title}</h2>
+            <p>Emitido em {new Intl.DateTimeFormat('pt-AO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}</p>
           </div>
 
           <div className="summary-grid">
             {summaryEntries(report.resumo).map(([key, value]) => (
               <div className="metric-card compact" key={key}>
-                <span>{key.replaceAll('_', ' ')}</span>
+                <span>{humanizeKey(key)}</span>
                 <strong>{formatValue(value)}</strong>
               </div>
             ))}
           </div>
 
+          {Object.keys(report.filtros || {}).length > 0 && (
+            <section className="report-section">
+              <h3>Filtros Utilizados</h3>
+              <DetailSection items={report.filtros} />
+            </section>
+          )}
+
           {activeType === 'desempenhoPCT' ? (
-            <pre className="report-analysis-json">{JSON.stringify(report.analysis, null, 2)}</pre>
+            <AnalysisSection analysis={report.analysis} />
           ) : (
-            <div className="table-responsive">
-              <table className="table sigep-table align-middle">
-                <thead>
-                  <tr>
-                    {columns.map(([key, label]) => <th key={key}>{label}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.length === 0 && <tr><td colSpan={columns.length} className="text-center text-muted py-4">Nenhum registo encontrado.</td></tr>}
-                  {rows.map((row, index) => (
-                    <tr key={`${activeType}-${index}`}>
-                      {columns.map(([key]) => <td key={key}>{formatValue(row[key])}</td>)}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="report-section-stack">
+              {(report.seccoes || []).map((section, index) => <ReportSection section={section} key={`${section.titulo}-${index}`} />)}
             </div>
           )}
         </section>

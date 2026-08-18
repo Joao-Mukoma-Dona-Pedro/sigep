@@ -5,10 +5,10 @@ import PageHeader from '../components/ui/PageHeader';
 import { getLecionacao } from '../services/lecionacaoService';
 
 function getErrorMessage(error) {
-  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
-  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'Lecionação não encontrada.';
-  return 'Ocorreu um erro ao carregar os dados da lecionação.';
+  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'LeccionaÃ§Ã£o nÃ£o encontrada.';
+  return 'Ocorreu um erro ao carregar os dados da leccionaÃ§Ã£o.';
 }
 
 function formatDateTime(value) {
@@ -49,14 +49,12 @@ function LecionacaoDetailPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Lecionação"
-        eyebrow="Detalhes"
-        description="Relação entre professor, disciplina e turma."
-        breadcrumbs={['Lecionações', 'Detalhes']}
+        title="LeccionaÃ§Ã£o"
+        breadcrumbs={['LeccionaÃ§Ãµes', 'Detalhes']}
         actions={<Link className="btn btn-outline-secondary" to="/lecionacoes"><i className="bi bi-arrow-left" />Voltar</Link>}
       />
 
-      {isLoading && <section className="empty-state"><h2>A carregar lecionação...</h2></section>}
+      {isLoading && <section className="empty-state"><h2>A carregar leccionaÃ§Ã£o...</h2></section>}
       {error && <div className="alert alert-danger">{error}</div>}
 
       {!isLoading && lecionacao && (
@@ -68,15 +66,15 @@ function LecionacaoDetailPage() {
             <DetailItem label="Sala" value={lecionacao.turma_info?.sala} />
             <DetailItem label="Turma" value={lecionacao.turma_info ? `${lecionacao.turma_info.classe} ${lecionacao.turma_info.sala}` : '-'} />
             <DetailItem label="Ano Lectivo" value={lecionacao.ano_lectivo} />
-            <DetailItem label="Horário" value={lecionacao.horario} />
+            <DetailItem label="HorÃ¡rio" value={lecionacao.horario} />
             <DetailItem label="Estado" value={lecionacao.estado === 'ATIVO' ? 'Ativa' : 'Inativa'} />
-            <DetailItem label="Data de Criação" value={formatDateTime(lecionacao.created_at)} />
-            <DetailItem label="Última Atualização" value={formatDateTime(lecionacao.updated_at)} />
+            <DetailItem label="Data de CriaÃ§Ã£o" value={formatDateTime(lecionacao.created_at)} />
+            <DetailItem label="Ãšltima AtualizaÃ§Ã£o" value={formatDateTime(lecionacao.updated_at)} />
           </section>
 
           <section className="panel-card">
-            <div className="panel-card-header"><h2>Observação</h2></div>
-            <p className="mb-0 text-muted">{lecionacao.observacao || 'Sem observações registadas.'}</p>
+            <div className="panel-card-header"><h2>ObservaÃ§Ã£o</h2></div>
+            <p className="mb-0 text-muted">{lecionacao.observacao || 'Sem observaÃ§Ãµes registadas.'}</p>
           </section>
         </>
       )}

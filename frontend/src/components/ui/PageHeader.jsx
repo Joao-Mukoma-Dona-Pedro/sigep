@@ -1,4 +1,4 @@
-function PageHeader({ title, eyebrow, description, actions, breadcrumbs = [] }) {
+function PageHeader({ title, actions, breadcrumbs = [] }) {
   return (
     <div className="page-heading">
       <nav aria-label="breadcrumb">
@@ -13,9 +13,7 @@ function PageHeader({ title, eyebrow, description, actions, breadcrumbs = [] }) 
       </nav>
       <div className="page-heading-row">
         <div>
-          {eyebrow && <p className="eyebrow">{eyebrow}</p>}
           <h1>{title}</h1>
-          {description && <p className="page-description">{description}</p>}
         </div>
         {actions && <div className="page-actions">{actions}</div>}
       </div>

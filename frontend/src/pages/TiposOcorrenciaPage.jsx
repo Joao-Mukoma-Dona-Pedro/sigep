@@ -11,7 +11,7 @@ import {
 const categorias = [
   { value: 'DISCIPLINAR', label: 'Disciplinar' },
   { value: 'COMPORTAMENTAL', label: 'Comportamental' },
-  { value: 'ACADEMICA', label: 'Académica' },
+  { value: 'ACADEMICA', label: 'AcadÃ©mica' },
   { value: 'OUTROS', label: 'Outros' },
 ];
 
@@ -26,7 +26,7 @@ function getCategoriaLabel(value) {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -38,7 +38,7 @@ function getErrorMessage(error) {
   }
 
   if (error.response.status === 409) {
-    return error.response.data?.detail || 'Não foi possível eliminar este tipo de ocorrência.';
+    return error.response.data?.detail || 'NÃ£o foi possÃ­vel eliminar este tipo de ocorrÃªncia.';
   }
 
   if (error.response.status === 400) {
@@ -72,7 +72,7 @@ function TipoOcorrenciaFormModal({ mode, form, onChange, onClose, onSubmit, isSu
           <form className="modal-content sigep-modal" onSubmit={onSubmit}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow mb-1">Tipos de Ocorrências</p>
+                <p className="eyebrow mb-1">Tipos de OcorrÃªncias</p>
                 <h2 className="modal-title h5">{title}</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
@@ -297,10 +297,8 @@ function TiposOcorrenciaPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Tipos de Ocorrências"
-        eyebrow="Classificacao"
-        description="Cadastro auxiliar para classificar ocorrencias dos alunos."
-        breadcrumbs={['Tipos de Ocorrências']}
+        title="Tipos de OcorrÃªncias"
+        breadcrumbs={['Tipos de OcorrÃªncias']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
             <i className="bi bi-plus-lg" />

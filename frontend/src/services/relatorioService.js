@@ -2,6 +2,8 @@ import api from './api';
 
 const reportEndpoints = {
   professores: '/relatorios/professores/',
+  disciplinas: '/relatorios/disciplinas/',
+  lecionacoes: '/relatorios/lecionacoes/',
   turmas: '/relatorios/turmas/',
   alunos: '/relatorios/alunos/',
   planificacoes: '/relatorios/planificacoes/',

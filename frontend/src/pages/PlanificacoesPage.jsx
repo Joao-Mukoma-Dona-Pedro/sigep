@@ -20,7 +20,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -87,7 +87,7 @@ function PlanificacaoFormModal({
           <form className="modal-content sigep-modal" onSubmit={onSubmit}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow mb-1">Planificações</p>
+                <p className="eyebrow mb-1">PlanificaÃ§Ãµes</p>
                 <h2 className="modal-title h5">{title}</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
@@ -155,7 +155,7 @@ function PlanificacaoFormModal({
                   </div>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -338,10 +338,8 @@ function PlanificacoesPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="Planificações"
-        eyebrow="Planeamento pedagogico"
-        description="Registo e acompanhamento da entrega das planificacoes trimestrais dos professores."
-        breadcrumbs={['Planificações']}
+        title="PlanificaÃ§Ãµes"
+        breadcrumbs={['PlanificaÃ§Ãµes']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
             <i className="bi bi-plus-lg" />
@@ -438,7 +436,7 @@ function PlanificacoesPage() {
                 <th>Trimestre</th>
                 <th>Data de Entrega</th>
                 <th>Entregou</th>
-                <th>Observação</th>
+                <th>ObservaÃ§Ã£o</th>
                 <th className="text-end">Acoes</th>
               </tr>
             </thead>
@@ -468,7 +466,7 @@ function PlanificacoesPage() {
                   <td>{formatDate(planificacao.data_entrega)}</td>
                   <td>
                     <span className={`sigep-badge ${planificacao.entregou ? 'badge-success' : 'badge-warning'}`}>
-                      {planificacao.entregou ? 'Sim' : 'Não'}
+                      {planificacao.entregou ? 'Sim' : 'NÃ£o'}
                     </span>
                   </td>
                   <td>{planificacao.observacao || '-'}</td>

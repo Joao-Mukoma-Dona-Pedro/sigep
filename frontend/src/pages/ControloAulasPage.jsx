@@ -19,7 +19,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
   }
 
   if (error.response.status === 401) {
@@ -121,7 +121,7 @@ function ControloAulaFormModal({
             <div className="modal-body">
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label" htmlFor="lecionacao">Lecionação</label>
+                  <label className="form-label" htmlFor="lecionacao">LeccionaÃ§Ã£o</label>
                   <select
                     id="lecionacao"
                     className="form-select"
@@ -171,7 +171,7 @@ function ControloAulaFormModal({
                   </div>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">Observação</label>
+                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -372,8 +372,6 @@ function ControloAulasPage() {
     <div className="page-stack">
       <PageHeader
         title="Controlo de Aulas"
-        eyebrow="Aulas assistidas"
-        description="Acompanhamento simples das aulas assistidas por lecionacao."
         breadcrumbs={['Controlo de Aulas']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
@@ -425,7 +423,7 @@ function ControloAulasPage() {
         <select className="form-select" value={aulaAssistida} onChange={(event) => resetAndSetPage(event, setAulaAssistida)}>
           <option value="">Todas</option>
           <option value="true">Assistidas</option>
-          <option value="false">Não assistidas</option>
+          <option value="false">NÃ£o assistidas</option>
         </select>
         <select className="form-select" value={ordering} onChange={(event) => resetAndSetPage(event, setOrdering)}>
           <option value="-data">Data recente</option>
@@ -451,7 +449,7 @@ function ControloAulasPage() {
                 <th>Ano Lectivo</th>
                 <th>Data</th>
                 <th>Aula Assistida</th>
-                <th>Observação</th>
+                <th>ObservaÃ§Ã£o</th>
                 <th className="text-end">Acoes</th>
               </tr>
             </thead>
@@ -477,7 +475,7 @@ function ControloAulasPage() {
                   <td>{formatDate(controlo.data)}</td>
                   <td>
                     <span className={`sigep-badge ${controlo.aula_assistida ? 'badge-success' : 'badge-warning'}`}>
-                      {controlo.aula_assistida ? 'Sim' : 'Não'}
+                      {controlo.aula_assistida ? 'Sim' : 'NÃ£o'}
                     </span>
                   </td>
                   <td>{controlo.observacao || '-'}</td>

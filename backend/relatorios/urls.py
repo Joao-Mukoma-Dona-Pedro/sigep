@@ -4,6 +4,8 @@ from .views import (
     AlunosReportView,
     ControloAulasReportView,
     DesempenhoPCTReportView,
+    DisciplinasReportView,
+    LecionacoesReportView,
     OcorrenciasReportView,
     PCTReportView,
     PlanificacoesReportView,
@@ -16,6 +18,8 @@ from .views import (
 urlpatterns = [
     path('relatorios/opcoes/', ReportOptionsView.as_view(), name='relatorios-opcoes'),
     path('relatorios/professores/', ProfessoresReportView.as_view(), name='relatorios-professores'),
+    path('relatorios/disciplinas/', DisciplinasReportView.as_view(), name='relatorios-disciplinas'),
+    path('relatorios/lecionacoes/', LecionacoesReportView.as_view(), name='relatorios-lecionacoes'),
     path('relatorios/turmas/', TurmasReportView.as_view(), name='relatorios-turmas'),
     path('relatorios/alunos/', AlunosReportView.as_view(), name='relatorios-alunos'),
     path('relatorios/planificacoes/', PlanificacoesReportView.as_view(), name='relatorios-planificacoes'),
