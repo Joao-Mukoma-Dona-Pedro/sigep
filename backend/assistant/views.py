@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .gateway import AssistantGatewayError, error_payload, execute_gateway_query
-from .serializers import AssistantQuerySerializer
+from .provider import AssistantProviderError, OpenAIAssistantProvider, assistant_unavailable_payload
+from .serializers import AssistantChatSerializer, AssistantQuerySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class AssistantQueryView(APIView):
         except AssistantGatewayError as exc:
             return Response(error_payload(exc.code, exc.message), status=exc.status_code)
         except Exception:
-            logger.exception(
+            logger.error(
                 'assistant_gateway unexpected_error tool=%s user=%s',
                 tool_name,
                 getattr(request.user, 'id', None),
@@ -57,3 +58,44 @@ class AssistantQueryView(APIView):
 
         return Response(result, status=status.HTTP_200_OK)
 
+
+class AssistantChatView(APIView):
+    permission_classes = [IsAuthenticated, IsPedagogicalAdmin]
+
+    def post(self, request):
+        serializer = AssistantChatSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                error_payload('INVALID_ARGUMENTS', 'Payload invalido.'),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        provider = OpenAIAssistantProvider()
+
+        try:
+            result = provider.answer(
+                request.user,
+                serializer.validated_data['message'],
+                route=serializer.validated_data.get('route', ''),
+                page_context=serializer.validated_data.get('page_context', ''),
+                filters=serializer.validated_data.get('filters') or {},
+            )
+        except AssistantProviderError as exc:
+            logger.warning(
+                'assistant_chat provider_error code=%s user=%s',
+                exc.code,
+                getattr(request.user, 'id', None),
+            )
+            result = assistant_unavailable_payload(exc.message)
+            result['error'] = {'code': exc.code, 'message': exc.message}
+        except Exception:
+            logger.error(
+                'assistant_chat unexpected_error user=%s',
+                getattr(request.user, 'id', None),
+            )
+            return Response(
+                error_payload('INTERNAL_ERROR', 'Erro interno ao consultar o Assistente SIGEP.'),
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(result, status=status.HTTP_200_OK)
