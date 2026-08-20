@@ -119,6 +119,12 @@ class LecionacaoViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_409_CONFLICT,
             )
 
+        if lecionacao.planificacoes.exists():
+            return Response(
+                {'detail': 'Esta lecionação possui planificações associadas e não pode ser eliminada.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+
         return super().destroy(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='professores')

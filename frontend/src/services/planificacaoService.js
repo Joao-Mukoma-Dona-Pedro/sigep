@@ -3,6 +3,9 @@ import api from './api';
 export async function listPlanificacoes({
   search,
   professor,
+  disciplina,
+  turma,
+  ano_lectivo,
   trimestre,
   entregou,
   data_inicio,
@@ -14,6 +17,9 @@ export async function listPlanificacoes({
     params: {
       search: search || undefined,
       professor: professor || undefined,
+      disciplina: disciplina || undefined,
+      turma: turma || undefined,
+      ano_lectivo: ano_lectivo || undefined,
       trimestre: trimestre || undefined,
       entregou: entregou || undefined,
       data_inicio: data_inicio || undefined,
@@ -45,14 +51,7 @@ export async function deletePlanificacao(id) {
   await api.delete(`/planificacoes/${id}/`);
 }
 
-export async function listProfessorOptions() {
-  const response = await api.get('/professores/', {
-    params: {
-      estado: 'ATIVO',
-      ordering: 'nome',
-      page_size: 100,
-    },
-  });
-
-  return response.data.results || [];
+export async function listPlanificacaoLecionacaoOptions() {
+  const response = await api.get('/planificacoes/lecionacoes/');
+  return response.data || [];
 }

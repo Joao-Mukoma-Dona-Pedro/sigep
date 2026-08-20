@@ -7,10 +7,12 @@ class Planificacao(models.Model):
         SEGUNDO = '2', '2o Trimestre'
         TERCEIRO = '3', '3o Trimestre'
 
-    professor = models.ForeignKey(
-        'professores.Professor',
+    lecionacao = models.ForeignKey(
+        'professores.Lecionacao',
         on_delete=models.PROTECT,
         related_name='planificacoes',
+        null=True,
+        blank=True,
     )
     trimestre = models.CharField(max_length=1, choices=Trimestre.choices)
     data_entrega = models.DateField(null=True, blank=True)
@@ -20,9 +22,11 @@ class Planificacao(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-data_entrega', 'professor', 'trimestre']
+        ordering = ['-data_entrega', 'lecionacao__professor', 'trimestre']
         verbose_name = 'Planificacao'
         verbose_name_plural = 'Planificacoes'
 
     def __str__(self):
-        return f'{self.professor} - {self.get_trimestre_display()}'
+        if self.lecionacao_id:
+            return f'{self.lecionacao} - {self.get_trimestre_display()}'
+        return f'Planificacao sem lecionacao - {self.get_trimestre_display()}'

@@ -5,13 +5,13 @@ import PageHeader from '../components/ui/PageHeader';
 import {
   createPlanificacao,
   deletePlanificacao,
+  listPlanificacaoLecionacaoOptions,
   listPlanificacoes,
-  listProfessorOptions,
   updatePlanificacao,
 } from '../services/planificacaoService';
 
 const initialForm = {
-  professor: '',
+  lecionacao: '',
   trimestre: '1',
   data_entrega: '',
   entregou: false,
@@ -20,15 +20,15 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está activo.';
   }
 
   if (error.response.status === 401) {
-    return 'A sua sessao expirou. Entre novamente no SIGEP.';
+    return 'A sua sessão expirou. Entre novamente no SIGEP.';
   }
 
   if (error.response.status === 404) {
-    return 'Planificacao nao encontrada.';
+    return 'Planificação não encontrada.';
   }
 
   if (error.response.status === 400) {
@@ -38,7 +38,7 @@ function getErrorMessage(error) {
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulario.';
+    return firstMessage || 'Verifique os dados do formulário.';
   }
 
   return 'Ocorreu um erro inesperado. Tente novamente.';
@@ -51,16 +51,20 @@ function formatDate(value) {
 
 function formatTrimestre(value) {
   const labels = {
-    1: '1o Trimestre',
-    2: '2o Trimestre',
-    3: '3o Trimestre',
+    1: '1.º Trimestre',
+    2: '2.º Trimestre',
+    3: '3.º Trimestre',
   };
   return labels[value] || '-';
 }
 
+function getLecionacaoLabel(lecionacao) {
+  return `${lecionacao.professor} - ${lecionacao.disciplina} - ${lecionacao.turma} (${lecionacao.ano_lectivo})`;
+}
+
 function buildPayload(form) {
   return {
-    professor: form.professor ? Number(form.professor) : '',
+    lecionacao: form.lecionacao ? Number(form.lecionacao) : '',
     trimestre: form.trimestre,
     data_entrega: form.data_entrega || null,
     entregou: Boolean(form.entregou),
@@ -68,17 +72,49 @@ function buildPayload(form) {
   };
 }
 
+function DerivedInfo({ lecionacao }) {
+  if (!lecionacao) {
+    return (
+      <div className="alert alert-info mb-0">
+        Seleccione uma leccionação para visualizar professor, disciplina, turma e ano lectivo.
+      </div>
+    );
+  }
+
+  return (
+    <div className="detail-grid">
+      <div className="detail-item">
+        <span>Professor</span>
+        <strong>{lecionacao.professor}</strong>
+      </div>
+      <div className="detail-item">
+        <span>Disciplina</span>
+        <strong>{lecionacao.disciplina}</strong>
+      </div>
+      <div className="detail-item">
+        <span>Turma</span>
+        <strong>{lecionacao.turma}</strong>
+      </div>
+      <div className="detail-item">
+        <span>Ano Lectivo</span>
+        <strong>{lecionacao.ano_lectivo}</strong>
+      </div>
+    </div>
+  );
+}
+
 function PlanificacaoFormModal({
   mode,
   form,
-  professores,
+  lecionacoes,
   onChange,
   onCheckChange,
   onClose,
   onSubmit,
   isSubmitting,
 }) {
-  const title = mode === 'edit' ? 'Editar Planificacao' : 'Nova Planificacao';
+  const title = mode === 'edit' ? 'Editar Planificação' : 'Nova Planificação';
+  const selectedLecionacao = lecionacoes.find((item) => String(item.id) === String(form.lecionacao));
 
   return (
     <>
@@ -95,24 +131,29 @@ function PlanificacaoFormModal({
 
             <div className="modal-body">
               <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label" htmlFor="professor">Professor</label>
+                <div className="col-12">
+                  <label className="form-label" htmlFor="lecionacao">Leccionação</label>
                   <select
-                    id="professor"
+                    id="lecionacao"
                     className="form-select"
-                    name="professor"
-                    value={form.professor}
+                    name="lecionacao"
+                    value={form.lecionacao}
                     onChange={onChange}
                     required
                   >
-                    <option value="">Selecione um professor</option>
-                    {professores.map((professor) => (
-                      <option key={professor.id} value={professor.id}>
-                        {professor.nome}
+                    <option value="">Seleccione uma leccionação</option>
+                    {lecionacoes.map((lecionacao) => (
+                      <option key={lecionacao.id} value={lecionacao.id}>
+                        {getLecionacaoLabel(lecionacao)}
                       </option>
                     ))}
                   </select>
                 </div>
+
+                <div className="col-12">
+                  <DerivedInfo lecionacao={selectedLecionacao} />
+                </div>
+
                 <div className="col-md-6">
                   <label className="form-label" htmlFor="trimestre">Trimestre</label>
                   <select
@@ -123,9 +164,9 @@ function PlanificacaoFormModal({
                     onChange={onChange}
                     required
                   >
-                    <option value="1">1o Trimestre</option>
-                    <option value="2">2o Trimestre</option>
-                    <option value="3">3o Trimestre</option>
+                    <option value="1">1.º Trimestre</option>
+                    <option value="2">2.º Trimestre</option>
+                    <option value="3">3.º Trimestre</option>
                   </select>
                 </div>
                 <div className="col-md-6">
@@ -187,11 +228,14 @@ function PlanificacaoFormModal({
 
 function PlanificacoesPage() {
   const [planificacoes, setPlanificacoes] = useState([]);
-  const [professores, setProfessores] = useState([]);
+  const [lecionacoes, setLecionacoes] = useState([]);
   const [pagination, setPagination] = useState({ count: 0, next: null, previous: null });
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [professor, setProfessor] = useState('');
+  const [disciplina, setDisciplina] = useState('');
+  const [turma, setTurma] = useState('');
+  const [anoLectivo, setAnoLectivo] = useState('');
   const [trimestre, setTrimestre] = useState('');
   const [entregou, setEntregou] = useState('');
   const [dataInicio, setDataInicio] = useState('');
@@ -206,6 +250,22 @@ function PlanificacoesPage() {
   const [form, setForm] = useState(initialForm);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(pagination.count / 10)), [pagination.count]);
+  const professorOptions = useMemo(
+    () => Array.from(new Map(lecionacoes.map((item) => [item.professor_id, item])).values()),
+    [lecionacoes],
+  );
+  const disciplinaOptions = useMemo(
+    () => Array.from(new Map(lecionacoes.map((item) => [item.disciplina_id, item])).values()),
+    [lecionacoes],
+  );
+  const turmaOptions = useMemo(
+    () => Array.from(new Map(lecionacoes.map((item) => [item.turma_id, item])).values()),
+    [lecionacoes],
+  );
+  const anoOptions = useMemo(
+    () => [...new Set(lecionacoes.map((item) => item.ano_lectivo).filter(Boolean))].sort(),
+    [lecionacoes],
+  );
 
   async function loadPlanificacoes(targetPage = page) {
     setIsLoading(true);
@@ -215,6 +275,9 @@ function PlanificacoesPage() {
       const data = await listPlanificacoes({
         search,
         professor,
+        disciplina,
+        turma,
+        ano_lectivo: anoLectivo,
         trimestre,
         entregou,
         data_inicio: dataInicio,
@@ -231,17 +294,17 @@ function PlanificacoesPage() {
     }
   }
 
-  async function loadProfessores() {
+  async function loadLecionacoes() {
     try {
-      const data = await listProfessorOptions();
-      setProfessores(data);
+      const data = await listPlanificacaoLecionacaoOptions();
+      setLecionacoes(data);
     } catch (requestError) {
       setError(getErrorMessage(requestError));
     }
   }
 
   useEffect(() => {
-    loadProfessores();
+    loadLecionacoes();
   }, []);
 
   useEffect(() => {
@@ -250,7 +313,7 @@ function PlanificacoesPage() {
     }, 350);
 
     return () => window.clearTimeout(timeout);
-  }, [page, search, professor, trimestre, entregou, dataInicio, dataFim, ordering]);
+  }, [page, search, professor, disciplina, turma, anoLectivo, trimestre, entregou, dataInicio, dataFim, ordering]);
 
   function resetAndSetPage(event, setter) {
     setPage(1);
@@ -274,7 +337,7 @@ function PlanificacoesPage() {
   function openEditModal(planificacao) {
     setSelectedPlanificacao(planificacao);
     setForm({
-      professor: planificacao.professor || '',
+      lecionacao: planificacao.lecionacao || '',
       trimestre: planificacao.trimestre || '1',
       data_entrega: planificacao.data_entrega || '',
       entregou: Boolean(planificacao.entregou),
@@ -298,10 +361,10 @@ function PlanificacoesPage() {
     try {
       if (modalMode === 'edit' && selectedPlanificacao) {
         await updatePlanificacao(selectedPlanificacao.id, buildPayload(form));
-        setSuccess('Planificacao atualizada com sucesso.');
+        setSuccess('Planificação actualizada com sucesso.');
       } else {
         await createPlanificacao(buildPayload(form));
-        setSuccess('Planificacao criada com sucesso.');
+        setSuccess('Planificação criada com sucesso.');
       }
 
       closeModal();
@@ -314,8 +377,8 @@ function PlanificacoesPage() {
   }
 
   async function handleDelete(planificacao) {
-    const professorNome = planificacao.professor_info?.nome || 'professor selecionado';
-    const confirmed = window.confirm(`Eliminar a planificacao de "${professorNome}"?`);
+    const label = planificacao.lecionacao_info?.professor || 'registo seleccionado';
+    const confirmed = window.confirm(`Eliminar a planificação de "${label}"?`);
     if (!confirmed) return;
 
     setError('');
@@ -323,7 +386,7 @@ function PlanificacoesPage() {
 
     try {
       await deletePlanificacao(planificacao.id);
-      setSuccess('Planificacao eliminada com sucesso.');
+      setSuccess('Planificação eliminada com sucesso.');
       await loadPlanificacoes(page);
     } catch (requestError) {
       setError(getErrorMessage(requestError));
@@ -343,7 +406,7 @@ function PlanificacoesPage() {
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
             <i className="bi bi-plus-lg" />
-            Nova Planificacao
+            Nova Planificação
           </button>
         )}
       />
@@ -351,79 +414,65 @@ function PlanificacoesPage() {
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      <section className="sigep-toolbar" aria-label="Filtros de planificacoes">
+      <section className="sigep-toolbar" aria-label="Filtros de planificações">
         <div className="search-control">
           <i className="bi bi-search" aria-hidden="true" />
           <input
             className="form-control"
             type="search"
-            placeholder="Pesquisar por professor, e-mail ou observacao"
+            placeholder="Pesquisar por professor, disciplina, turma, ano lectivo ou observação"
             value={search}
             onChange={(event) => resetAndSetPage(event, setSearch)}
           />
         </div>
-        <select
-          className="form-select"
-          aria-label="Filtrar por professor"
-          value={professor}
-          onChange={(event) => resetAndSetPage(event, setProfessor)}
-        >
+        <select className="form-select" aria-label="Filtrar por professor" value={professor} onChange={(event) => resetAndSetPage(event, setProfessor)}>
           <option value="">Todos os professores</option>
-          {professores.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.nome}
-            </option>
+          {professorOptions.map((item) => (
+            <option key={item.professor_id} value={item.professor_id}>{item.professor}</option>
           ))}
         </select>
-        <select
-          className="form-select"
-          aria-label="Filtrar por trimestre"
-          value={trimestre}
-          onChange={(event) => resetAndSetPage(event, setTrimestre)}
-        >
-          <option value="">Todos os trimestres</option>
-          <option value="1">1o Trimestre</option>
-          <option value="2">2o Trimestre</option>
-          <option value="3">3o Trimestre</option>
+        <select className="form-select" aria-label="Filtrar por disciplina" value={disciplina} onChange={(event) => resetAndSetPage(event, setDisciplina)}>
+          <option value="">Todas as disciplinas</option>
+          {disciplinaOptions.map((item) => (
+            <option key={item.disciplina_id} value={item.disciplina_id}>{item.disciplina}</option>
+          ))}
         </select>
-        <select
-          className="form-select"
-          aria-label="Filtrar por entrega"
-          value={entregou}
-          onChange={(event) => resetAndSetPage(event, setEntregou)}
-        >
+        <select className="form-select" aria-label="Filtrar por turma" value={turma} onChange={(event) => resetAndSetPage(event, setTurma)}>
+          <option value="">Todas as turmas</option>
+          {turmaOptions.map((item) => (
+            <option key={item.turma_id} value={item.turma_id}>{item.turma}</option>
+          ))}
+        </select>
+        <select className="form-select" aria-label="Filtrar por ano lectivo" value={anoLectivo} onChange={(event) => resetAndSetPage(event, setAnoLectivo)}>
+          <option value="">Todos os anos</option>
+          {anoOptions.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
+        </select>
+        <select className="form-select" aria-label="Filtrar por trimestre" value={trimestre} onChange={(event) => resetAndSetPage(event, setTrimestre)}>
+          <option value="">Todos os trimestres</option>
+          <option value="1">1.º Trimestre</option>
+          <option value="2">2.º Trimestre</option>
+          <option value="3">3.º Trimestre</option>
+        </select>
+        <select className="form-select" aria-label="Filtrar por entrega" value={entregou} onChange={(event) => resetAndSetPage(event, setEntregou)}>
           <option value="">Todas</option>
           <option value="true">Entregues</option>
           <option value="false">Pendentes</option>
         </select>
-        <input
-          className="form-control"
-          aria-label="Data inicial"
-          type="date"
-          value={dataInicio}
-          onChange={(event) => resetAndSetPage(event, setDataInicio)}
-        />
-        <input
-          className="form-control"
-          aria-label="Data final"
-          type="date"
-          value={dataFim}
-          onChange={(event) => resetAndSetPage(event, setDataFim)}
-        />
-        <select
-          className="form-select"
-          aria-label="Ordenar planificacoes"
-          value={ordering}
-          onChange={(event) => resetAndSetPage(event, setOrdering)}
-        >
+        <input className="form-control" aria-label="Data inicial" type="date" value={dataInicio} onChange={(event) => resetAndSetPage(event, setDataInicio)} />
+        <input className="form-control" aria-label="Data final" type="date" value={dataFim} onChange={(event) => resetAndSetPage(event, setDataFim)} />
+        <select className="form-select" aria-label="Ordenar planificações" value={ordering} onChange={(event) => resetAndSetPage(event, setOrdering)}>
           <option value="-data_entrega">Entrega recente</option>
           <option value="data_entrega">Entrega antiga</option>
+          <option value="lecionacao__professor__nome">Professor</option>
+          <option value="lecionacao__disciplina__nome">Disciplina</option>
           <option value="trimestre">Trimestre</option>
-          <option value="-created_at">Criacao recente</option>
+          <option value="-created_at">Criação recente</option>
         </select>
         <button className="btn btn-outline-secondary" type="button" onClick={() => loadPlanificacoes(page)}>
           <i className="bi bi-arrow-clockwise" />
-          Atualizar
+          Actualizar
         </button>
       </section>
 
@@ -433,35 +482,35 @@ function PlanificacoesPage() {
             <thead>
               <tr>
                 <th>Professor</th>
+                <th>Disciplina</th>
+                <th>Turma</th>
+                <th>Ano Lectivo</th>
                 <th>Trimestre</th>
                 <th>Data de Entrega</th>
                 <th>Entregou</th>
                 <th>Observação</th>
-                <th className="text-end">Acoes</th>
+                <th className="text-end">Acções</th>
               </tr>
             </thead>
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan="6" className="text-center text-muted py-4">
-                    A carregar planificacoes...
-                  </td>
+                  <td colSpan="9" className="text-center text-muted py-4">A carregar planificações...</td>
                 </tr>
               )}
 
               {!isLoading && planificacoes.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="text-center text-muted py-4">
-                    Nenhuma planificacao encontrada.
-                  </td>
+                  <td colSpan="9" className="text-center text-muted py-4">Nenhuma planificação encontrada.</td>
                 </tr>
               )}
 
               {!isLoading && planificacoes.map((planificacao) => (
                 <tr key={planificacao.id}>
-                  <td>
-                    <strong>{planificacao.professor_info?.nome || '-'}</strong>
-                  </td>
+                  <td><strong>{planificacao.lecionacao_info?.professor || '-'}</strong></td>
+                  <td>{planificacao.lecionacao_info?.disciplina || '-'}</td>
+                  <td>{planificacao.lecionacao_info?.turma || '-'}</td>
+                  <td>{planificacao.lecionacao_info?.ano_lectivo || '-'}</td>
                   <td>{formatTrimestre(planificacao.trimestre)}</td>
                   <td>{formatDate(planificacao.data_entrega)}</td>
                   <td>
@@ -493,25 +542,19 @@ function PlanificacoesPage() {
         </div>
       </section>
 
-      <nav aria-label="Paginacao de planificacoes" className="sigep-pagination">
+      <nav aria-label="Paginação de planificações" className="sigep-pagination">
         <span>
           {pagination.count} registo{pagination.count === 1 ? '' : 's'} encontrado{pagination.count === 1 ? '' : 's'}
         </span>
         <ul className="pagination pagination-sm mb-0">
           <li className={`page-item ${!pagination.previous ? 'disabled' : ''}`}>
-            <button className="page-link" type="button" onClick={() => changePage(page - 1)}>
-              Anterior
-            </button>
+            <button className="page-link" type="button" onClick={() => changePage(page - 1)}>Anterior</button>
           </li>
           <li className="page-item active">
-            <button className="page-link" type="button">
-              {page} / {totalPages}
-            </button>
+            <button className="page-link" type="button">{page} / {totalPages}</button>
           </li>
           <li className={`page-item ${!pagination.next ? 'disabled' : ''}`}>
-            <button className="page-link" type="button" onClick={() => changePage(page + 1)}>
-              Seguinte
-            </button>
+            <button className="page-link" type="button" onClick={() => changePage(page + 1)}>Seguinte</button>
           </li>
         </ul>
       </nav>
@@ -520,7 +563,7 @@ function PlanificacoesPage() {
         <PlanificacaoFormModal
           mode={modalMode}
           form={form}
-          professores={professores}
+          lecionacoes={lecionacoes}
           onChange={handleFormChange}
           onCheckChange={handleCheckChange}
           onClose={closeModal}

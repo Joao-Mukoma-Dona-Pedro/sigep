@@ -1,10 +1,13 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from professores.models import Lecionacao
 from .models import Planificacao
-from .serializers import PlanificacaoSerializer
+from .serializers import PlanificacaoLecionacaoSerializer, PlanificacaoSerializer
 
 
 class PlanificacaoPagination(PageNumberPagination):
@@ -19,24 +22,48 @@ class PlanificacaoViewSet(viewsets.ModelViewSet):
     pagination_class = PlanificacaoPagination
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = [
-        'professor__nome',
-        'professor__email',
+        'lecionacao__professor__nome',
+        'lecionacao__professor__email',
+        'lecionacao__disciplina__nome',
+        'lecionacao__turma__classe',
+        'lecionacao__turma__sala',
+        'lecionacao__ano_lectivo',
         'trimestre',
         'observacao',
     ]
-    ordering_fields = ['data_entrega', 'created_at', 'trimestre']
-    ordering = ['-data_entrega', 'professor', 'trimestre']
+    ordering_fields = [
+        'data_entrega',
+        'created_at',
+        'trimestre',
+        'lecionacao__professor__nome',
+        'lecionacao__disciplina__nome',
+        'lecionacao__turma__classe',
+    ]
+    ordering = ['-data_entrega', 'lecionacao__professor__nome', 'trimestre']
 
     def get_queryset(self):
-        queryset = Planificacao.objects.select_related('professor').all()
+        queryset = Planificacao.objects.select_related(
+            'lecionacao__professor',
+            'lecionacao__disciplina',
+            'lecionacao__turma',
+        ).all()
         professor = self.request.query_params.get('professor')
+        disciplina = self.request.query_params.get('disciplina')
+        turma = self.request.query_params.get('turma')
+        ano_lectivo = self.request.query_params.get('ano_lectivo')
         trimestre = self.request.query_params.get('trimestre')
         entregou = self.request.query_params.get('entregou')
         data_inicio = self.request.query_params.get('data_inicio')
         data_fim = self.request.query_params.get('data_fim')
 
         if professor:
-            queryset = queryset.filter(professor_id=professor)
+            queryset = queryset.filter(lecionacao__professor_id=professor)
+        if disciplina:
+            queryset = queryset.filter(lecionacao__disciplina_id=disciplina)
+        if turma:
+            queryset = queryset.filter(lecionacao__turma_id=turma)
+        if ano_lectivo:
+            queryset = queryset.filter(lecionacao__ano_lectivo=ano_lectivo)
         if trimestre:
             queryset = queryset.filter(trimestre=trimestre)
         if entregou in ('true', 'false'):
@@ -47,3 +74,15 @@ class PlanificacaoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(data_entrega__lte=data_fim)
 
         return queryset
+
+    @action(detail=False, methods=['get'], url_path='lecionacoes')
+    def lecionacoes(self, request):
+        queryset = Lecionacao.objects.select_related('professor', 'disciplina', 'turma').order_by(
+            'ano_lectivo',
+            'turma__classe',
+            'turma__sala',
+            'disciplina__nome',
+            'professor__nome',
+        )
+        serializer = PlanificacaoLecionacaoSerializer(queryset, many=True)
+        return Response(serializer.data)

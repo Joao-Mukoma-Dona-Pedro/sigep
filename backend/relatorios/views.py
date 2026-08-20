@@ -173,7 +173,10 @@ class ProfessoresReportView(ReportAPIView):
         if params.get('professor') and rows:
             professor = queryset.first()
             lecionacoes_qs = professor.lecionacoes.select_related('disciplina', 'turma')
-            planificacoes_qs = professor.planificacoes.all()
+            planificacoes_qs = Planificacao.objects.filter(lecionacao__professor=professor).select_related(
+                'lecionacao__disciplina',
+                'lecionacao__turma',
+            )
             controlo_qs = ControloAula.objects.filter(lecionacao__professor=professor).select_related('lecionacao__disciplina', 'lecionacao__turma')
             pct_qs = PCT.objects.filter(lecionacao__professor=professor).select_related('lecionacao__disciplina', 'lecionacao__turma').annotate(
                 resultados_count=Count('resultados', distinct=True),
@@ -198,6 +201,9 @@ class ProfessoresReportView(ReportAPIView):
                 ], 'Sem leccionações registadas.'),
                 self.table_section('Planificações', [
                     {
+                        'disciplina': item.lecionacao.disciplina.nome if item.lecionacao_id else '-',
+                        'turma': str(item.lecionacao.turma) if item.lecionacao_id else '-',
+                        'ano_lectivo': item.lecionacao.ano_lectivo if item.lecionacao_id else '-',
                         'trimestre': pct_trimestre_label(item.trimestre),
                         'data_entrega': item.data_entrega,
                         'situacao': 'Entregue' if item.entregou else 'Não entregue',
@@ -569,10 +575,20 @@ class LecionacoesReportView(ReportAPIView):
 
 class PlanificacoesReportView(ReportAPIView):
     def get(self, request):
-        queryset = Planificacao.objects.select_related('professor').order_by('-data_entrega', 'professor__nome')
+        queryset = Planificacao.objects.select_related(
+            'lecionacao__professor',
+            'lecionacao__disciplina',
+            'lecionacao__turma',
+        ).order_by('-data_entrega', 'lecionacao__professor__nome')
         params = request.query_params
         if params.get('professor'):
-            queryset = queryset.filter(professor_id=params.get('professor'))
+            queryset = queryset.filter(lecionacao__professor_id=params.get('professor'))
+        if params.get('disciplina'):
+            queryset = queryset.filter(lecionacao__disciplina_id=params.get('disciplina'))
+        if params.get('turma'):
+            queryset = queryset.filter(lecionacao__turma_id=params.get('turma'))
+        if params.get('ano_lectivo'):
+            queryset = queryset.filter(lecionacao__ano_lectivo=params.get('ano_lectivo'))
         if params.get('trimestre'):
             queryset = queryset.filter(trimestre=params.get('trimestre'))
         if params.get('entregou') in ('true', 'false'):
@@ -581,7 +597,10 @@ class PlanificacoesReportView(ReportAPIView):
         total = queryset.count()
         entregues = queryset.filter(entregou=True).count()
         rows = [{
-            'professor': item.professor.nome,
+            'professor': item.lecionacao.professor.nome if item.lecionacao_id else '-',
+            'disciplina': item.lecionacao.disciplina.nome if item.lecionacao_id else '-',
+            'turma': str(item.lecionacao.turma) if item.lecionacao_id else '-',
+            'ano_lectivo': item.lecionacao.ano_lectivo if item.lecionacao_id else '-',
             'trimestre': pct_trimestre_label(item.trimestre),
             'data_entrega': item.data_entrega,
             'situacao_entrega': 'Entregue' if item.entregou else 'Não entregue',

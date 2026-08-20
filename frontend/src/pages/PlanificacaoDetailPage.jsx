@@ -6,18 +6,18 @@ import { getPlanificacao } from '../services/planificacaoService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está activo.';
   }
 
   if (error.response.status === 401) {
-    return 'A sua sessao expirou. Entre novamente no SIGEP.';
+    return 'A sua sessão expirou. Entre novamente no SIGEP.';
   }
 
   if (error.response.status === 404) {
-    return 'Planificacao nao encontrada.';
+    return 'Planificação não encontrada.';
   }
 
-  return 'Ocorreu um erro ao carregar os dados da planificacao.';
+  return 'Ocorreu um erro ao carregar os dados da planificação.';
 }
 
 function formatDate(value) {
@@ -35,9 +35,9 @@ function formatDateTime(value) {
 
 function formatTrimestre(value) {
   const labels = {
-    1: '1o Trimestre',
-    2: '2o Trimestre',
-    3: '3o Trimestre',
+    1: '1.º Trimestre',
+    2: '2.º Trimestre',
+    3: '3.º Trimestre',
   };
   return labels[value] || '-';
 }
@@ -87,10 +87,12 @@ function PlanificacaoDetailPage() {
     };
   }, [id]);
 
+  const lecionacaoInfo = planificacao?.lecionacao_info;
+
   return (
     <div className="page-stack">
       <PageHeader
-        title="Planificacao"
+        title="Planificação"
         breadcrumbs={['Planificações', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/planificacoes">
@@ -102,7 +104,7 @@ function PlanificacaoDetailPage() {
 
       {isLoading && (
         <section className="empty-state">
-          <h2>A carregar planificacao...</h2>
+          <h2>A carregar planificação...</h2>
         </section>
       )}
 
@@ -112,28 +114,31 @@ function PlanificacaoDetailPage() {
         <>
           <section className="profile-panel">
             <div className="profile-summary">
-              <div className="user-avatar large">{planificacao.professor_info?.nome?.charAt(0) || 'P'}</div>
+              <div className="user-avatar large">{lecionacaoInfo?.professor?.charAt(0) || 'P'}</div>
               <div>
-                <strong>{planificacao.professor_info?.nome || 'Professor'}</strong>
+                <strong>{lecionacaoInfo?.professor || 'Planificação sem leccionação'}</strong>
                 <span>{formatTrimestre(planificacao.trimestre)}</span>
               </div>
             </div>
           </section>
 
           <section className="detail-grid">
-            <DetailItem label="Professor" value={planificacao.professor_info?.nome} />
+            <DetailItem label="Professor" value={lecionacaoInfo?.professor} />
+            <DetailItem label="Disciplina" value={lecionacaoInfo?.disciplina} />
+            <DetailItem label="Turma" value={lecionacaoInfo?.turma} />
+            <DetailItem label="Ano Lectivo" value={lecionacaoInfo?.ano_lectivo} />
             <DetailItem label="Trimestre" value={formatTrimestre(planificacao.trimestre)} />
             <DetailItem label="Data de Entrega" value={formatDate(planificacao.data_entrega)} />
             <DetailItem label="Entregou" value={planificacao.entregou ? 'Sim' : 'Não'} />
-            <DetailItem label="Data de Criacao" value={formatDateTime(planificacao.created_at)} />
-            <DetailItem label="Ultima Atualizacao" value={formatDateTime(planificacao.updated_at)} />
+            <DetailItem label="Data de Criação" value={formatDateTime(planificacao.created_at)} />
+            <DetailItem label="Última Actualização" value={formatDateTime(planificacao.updated_at)} />
           </section>
 
           <section className="panel-card">
             <div className="panel-card-header">
               <h2>Observação</h2>
             </div>
-            <p className="mb-0 text-muted">{planificacao.observacao || 'Sem observacoes registadas.'}</p>
+            <p className="mb-0 text-muted">{planificacao.observacao || 'Sem observações registadas.'}</p>
           </section>
         </>
       )}

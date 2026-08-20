@@ -53,7 +53,7 @@ class RelatoriosAPITests(APITestCase):
             ano_lectivo='2026',
         )
         self.planificacao = Planificacao.objects.create(
-            professor=self.professor,
+            lecionacao=self.lecionacao,
             trimestre=Planificacao.Trimestre.PRIMEIRO,
             data_entrega='2026-02-10',
             entregou=True,
