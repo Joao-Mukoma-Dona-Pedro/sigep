@@ -17,17 +17,17 @@ const initialForm = {
 };
 
 function getErrorMessage(error) {
-  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
-  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'Disciplina nÃ£o encontrada.';
-  if (error.response.status === 409) return error.response.data?.detail || 'NÃ£o foi possÃ­vel eliminar esta disciplina.';
+  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'Disciplina não encontrada.';
+  if (error.response.status === 409) return error.response.data?.detail || 'Não foi possível eliminar esta disciplina.';
   if (error.response.status === 400) {
     const data = error.response.data;
     if (data?.detail) return data.detail;
     if (Array.isArray(data?.non_field_errors)) return data.non_field_errors[0];
     const firstField = Object.keys(data || {})[0];
     const firstMessage = firstField ? data[firstField]?.[0] : null;
-    return firstMessage || 'Verifique os dados do formulÃ¡rio.';
+    return firstMessage || 'Verifique os dados do formulário.';
   }
   return 'Ocorreu um erro inesperado. Tente novamente.';
 }
@@ -66,12 +66,12 @@ function DisciplinaFormModal({ mode, form, onChange, onClose, onSubmit, isSubmit
                     name="nome"
                     value={form.nome}
                     onChange={onChange}
-                    placeholder="Ex.: MatemÃ¡tica"
+                    placeholder="Ex.: Matemática"
                     required
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label" htmlFor="codigo">CÃ³digo</label>
+                  <label className="form-label" htmlFor="codigo">Código</label>
                   <input
                     id="codigo"
                     className="form-control"
@@ -89,7 +89,7 @@ function DisciplinaFormModal({ mode, form, onChange, onClose, onSubmit, isSubmit
                   </select>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -254,7 +254,7 @@ function DisciplinasPage() {
         </select>
         <select className="form-select" value={ordering} onChange={(event) => resetAndSetPage(event, setOrdering)}>
           <option value="nome">Nome</option>
-          <option value="codigo">CÃ³digo</option>
+          <option value="codigo">Código</option>
           <option value="-created_at">Mais recentes</option>
         </select>
       </section>
@@ -265,10 +265,10 @@ function DisciplinasPage() {
             <thead>
               <tr>
                 <th>Nome da Disciplina</th>
-                <th>CÃ³digo</th>
+                <th>Código</th>
                 <th>Estado</th>
-                <th>ObservaÃ§Ã£o</th>
-                <th className="text-end">AÃ§Ãµes</th>
+                <th>Observação</th>
+                <th className="text-end">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -294,7 +294,7 @@ function DisciplinasPage() {
         </div>
       </section>
 
-      <nav aria-label="PaginaÃ§Ã£o de disciplinas" className="sigep-pagination">
+      <nav aria-label="Paginação de disciplinas" className="sigep-pagination">
         <span>{pagination.count} registo{pagination.count === 1 ? '' : 's'} encontrado{pagination.count === 1 ? '' : 's'}</span>
         <ul className="pagination pagination-sm mb-0">
           <li className={`page-item ${!pagination.previous ? 'disabled' : ''}`}><button className="page-link" type="button" onClick={() => changePage(page - 1)}>Anterior</button></li>

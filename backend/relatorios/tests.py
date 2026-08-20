@@ -162,6 +162,19 @@ class RelatoriosAPITests(APITestCase):
         self.assertEqual(response.data['rows'][0]['quantidade_alunos'], 1)
         self.assertEqual(response.data['rows'][0]['diretor_turma'], self.professor.nome)
 
+    def test_relatorio_turma_inclui_rendimento_academico_real(self):
+        self.authenticate()
+
+        response = self.client.get(
+            reverse('relatorios-turmas'),
+            {'turma': self.turma.id, 'classe': '10', 'ano_lectivo': '2026'},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        chart_sections = [section for section in response.data['seccoes'] if section['tipo'] == 'grafico']
+        self.assertEqual(chart_sections[0]['titulo'], 'Gráfico de Rendimento Académico da Turma')
+        self.assertEqual(chart_sections[0]['rows'][0]['media'], 16.5)
+
     def test_relatorio_alunos_filtra_por_turma(self):
         self.authenticate()
 
@@ -170,6 +183,19 @@ class RelatoriosAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['resumo']['total'], 1)
         self.assertEqual(response.data['rows'][0]['nome'], self.aluno.nome)
+
+    def test_relatorio_aluno_inclui_rendimento_academico_real(self):
+        self.authenticate()
+
+        response = self.client.get(
+            reverse('relatorios-alunos'),
+            {'aluno': self.aluno.id, 'ano_lectivo': '2026'},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        chart_sections = [section for section in response.data['seccoes'] if section['tipo'] == 'grafico']
+        self.assertEqual(chart_sections[0]['titulo'], 'Gráfico de Rendimento Académico do Aluno')
+        self.assertEqual(chart_sections[0]['rows'][0]['nota'], 16.5)
 
     def test_relatorio_planificacoes_agrega_entregas(self):
         self.authenticate()
@@ -212,6 +238,8 @@ class RelatoriosAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['resumo']['quantidade_resultados'], 1)
         self.assertEqual(response.data['resumo']['media'], 16.5)
+        self.assertEqual(response.data['titulo'], 'Relatório por Ano Lectivo')
+        self.assertTrue(response.data['analysis']['desempenho_por_disciplina'])
 
     def test_relatorio_ocorrencias_filtra_por_categoria(self):
         self.authenticate()

@@ -12,6 +12,7 @@ const reportTypes = [
   { key: 'planificacoes', title: 'Planificação' },
   { key: 'controloAulas', title: 'Controlo de Aulas' },
   { key: 'pct', title: 'PCT' },
+  { key: 'anoLectivo', title: 'Ano Lectivo' },
   { key: 'desempenhoPCT', title: 'Desempenho PCT' },
   { key: 'ocorrencias', title: 'Ocorrências' },
   { key: 'reunioes', title: 'Reuniões' },
@@ -65,6 +66,7 @@ function getErrorMessage(error) {
 function formatValue(value) {
   if (value === null || value === undefined || value === '') return '-';
   if (typeof value === 'number') return value;
+  if (Array.isArray(value)) return value.length ? value.map(formatValue).join('; ') : '-';
   if (typeof value === 'object') {
     if (value.nome) return value.numero ? `${value.numero} - ${value.nome}` : value.nome;
     return JSON.stringify(value);
@@ -136,20 +138,105 @@ function DataTable({ rows = [], columns, empty = 'Sem dados.' }) {
   );
 }
 
+function getChartLabel(row, labelKey) {
+  const value = row?.[labelKey];
+  if (value && typeof value === 'object') return formatValue(value);
+  if (value !== undefined && value !== null && value !== '') return String(value);
+  return row?.disciplina?.nome || row?.turma?.nome || row?.classe || row?.trimestre_label || '-';
+}
+
+function ReportChart({ title, rows = [], labelKey, valueKey = 'media', chartType = 'bar', empty = 'Sem dados suficientes para apresentar o gráfico.' }) {
+  const data = rows.filter((row) => row?.[valueKey] !== null && row?.[valueKey] !== undefined && row?.[valueKey] !== '');
+
+  if (!data.length) {
+    return <div className="empty-state compact"><strong>{empty}</strong></div>;
+  }
+
+  const maxValue = Math.max(1, 20, ...data.map((row) => Number(row[valueKey])));
+
+  if (chartType === 'line') {
+    const width = 680;
+    const height = 220;
+    const padding = 34;
+    const step = data.length > 1 ? (width - padding * 2) / (data.length - 1) : 0;
+    const coords = data.map((row, index) => {
+      const value = Number(row[valueKey]);
+      return {
+        row,
+        x: padding + index * step,
+        y: height - padding - (value / maxValue) * (height - padding * 2),
+      };
+    });
+    const polyline = coords.map((item) => `${item.x},${item.y}`).join(' ');
+
+    return (
+      <div className="report-chart" role="img" aria-label={title}>
+        <svg viewBox={`0 0 ${width} ${height}`}>
+          <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} className="chart-axis" />
+          <line x1={padding} y1={padding} x2={padding} y2={height - padding} className="chart-axis" />
+          <polyline points={polyline} className="line-series" />
+          {coords.map((item) => (
+            <g key={`${item.x}-${getChartLabel(item.row, labelKey)}`}>
+              <circle cx={item.x} cy={item.y} r="5" className="line-point" />
+              <text x={item.x} y={item.y - 10} textAnchor="middle" className="chart-label">{formatValue(item.row[valueKey])}</text>
+              <text x={item.x} y={height - 10} textAnchor="middle" className="chart-label">{getChartLabel(item.row, labelKey)}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="analysis-bars report-bars">
+      {data.map((row) => {
+        const label = getChartLabel(row, labelKey);
+        const width = Math.max(4, (Number(row[valueKey]) / maxValue) * 100);
+        return (
+          <div className="analysis-bar-row" key={`${label}-${row[valueKey]}`}>
+            <span>{label}</span>
+            <div className="chart-track">
+              <div className="chart-bar tone-blue" style={{ width: `${width}%` }} />
+            </div>
+            <strong>{formatValue(row[valueKey])}</strong>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function AnalysisSection({ analysis }) {
   const tables = [
     ['Evolução', analysis?.evolucao],
+    ['Evolução da Média', analysis?.evolucao_media],
+    ['Evolução por Trimestre', analysis?.evolucao_por_trimestre],
     ['Tabela', analysis?.tabela],
     ['Média por Turma', analysis?.media_por_turma],
     ['Desempenho por Classe', analysis?.desempenho_por_classe],
+    ['Desempenho por Disciplina', analysis?.desempenho_por_disciplina],
     ['Distribuição', analysis?.distribuicao],
+    ['Distribuição de Notas', analysis?.distribuicao_notas],
   ].filter(([, rows]) => Array.isArray(rows));
+  const chartRows = analysis?.evolucao || analysis?.evolucao_media || analysis?.evolucao_por_trimestre || analysis?.desempenho_por_disciplina || analysis?.media_por_turma || analysis?.desempenho_por_classe || [];
+  const chartLabel = chartRows === analysis?.desempenho_por_disciplina ? 'disciplina' : chartRows === analysis?.media_por_turma ? 'turma' : chartRows === analysis?.desempenho_por_classe ? 'classe' : 'trimestre_label';
+  const chartType = chartRows === analysis?.evolucao || chartRows === analysis?.evolucao_media || chartRows === analysis?.evolucao_por_trimestre ? 'line' : 'bar';
 
   return (
     <div className="report-section-stack">
       {Array.isArray(analysis?.avisos) && analysis.avisos.length > 0 && (
         <div className="alert alert-warning mb-0">{analysis.avisos.join(' ')}</div>
       )}
+      <section className="report-section">
+        <h3>Gráfico de Rendimento Académico</h3>
+        <ReportChart
+          title="Gráfico de Rendimento Académico"
+          rows={chartRows}
+          labelKey={chartLabel}
+          valueKey={chartRows === analysis?.evolucao ? 'nota' : 'media'}
+          chartType={chartType}
+        />
+      </section>
       {tables.map(([title, rows]) => (
         <section className="report-section" key={title}>
           <h3>{title}</h3>
@@ -166,6 +253,15 @@ function ReportSection({ section }) {
       <h3>{section.titulo}</h3>
       {section.tipo === 'detalhes' ? (
         <DetailSection items={section.items} />
+      ) : section.tipo === 'grafico' ? (
+        <ReportChart
+          title={section.titulo}
+          rows={section.rows || []}
+          labelKey={section.label_key}
+          valueKey={section.value_key}
+          chartType={section.chart_type}
+          empty={section.empty}
+        />
       ) : (
         <DataTable rows={section.rows || []} empty={section.empty} />
       )}
@@ -217,7 +313,7 @@ function RelatoriosPage() {
     return true;
   }), [options.lecionacoes, filters]);
 
-  const rows = activeType === 'desempenhoPCT'
+  const rows = ['desempenhoPCT', 'anoLectivo'].includes(activeType)
     ? report?.analysis?.tabela || report?.analysis?.media_por_turma || report?.analysis?.desempenho_por_classe || []
     : report?.rows || [];
   const columns = columnsByType[activeType] || columnsFromRows(rows);
@@ -269,12 +365,15 @@ function RelatoriosPage() {
       planificacoes: ['professor', 'trimestre', 'entregou'],
       controloAulas: ['ano_lectivo', 'professor', 'disciplina', 'turma', 'data_inicio', 'data_fim'],
       pct: ['pct', 'ano_lectivo', 'professor', 'disciplina', 'turma', 'classe', 'trimestre'],
+      anoLectivo: ['tipo_analise', 'ano_lectivo', 'trimestre', 'classe', 'turma', 'disciplina', 'pct'],
       desempenhoPCT: ['tipo_analise', 'ano_lectivo', 'trimestre', 'classe', 'turma', 'disciplina', 'aluno', 'pct'],
       ocorrencias: ['ano_lectivo', 'classe', 'turma', 'aluno', 'categoria', 'tipo', 'data_inicio', 'data_fim'],
       reunioes: ['search', 'data_inicio', 'data_fim'],
     };
     const allowed = allowedByType[activeType] || [];
-    return Object.fromEntries(Object.entries(filters).filter(([key, value]) => allowed.includes(key) && value));
+    const cleaned = Object.fromEntries(Object.entries(filters).filter(([key, value]) => allowed.includes(key) && value));
+    if (activeType === 'anoLectivo') cleaned.tipo_analise = 'ano_lectivo';
+    return cleaned;
   }
 
   async function generateReport() {
@@ -368,7 +467,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
+          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="ano_lectivo">Ano Lectivo</label>
               <select id="ano_lectivo" className="form-select" name="ano_lectivo" value={filters.ano_lectivo} onChange={updateFilter}>
@@ -377,7 +476,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['alunos', 'turmas', 'pct', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
+          {['alunos', 'turmas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="classe">Classe</label>
               <select id="classe" className="form-select" name="classe" value={filters.classe} onChange={updateFilter}>
@@ -386,7 +485,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
+          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="turma">Turma</label>
               <select id="turma" className="form-select" name="turma" value={filters.turma} onChange={updateFilter}>
@@ -395,7 +494,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'controloAulas', 'pct', 'desempenhoPCT', 'lecionacoes'].includes(activeType) && (
+          {['professores', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="disciplina_filter">Disciplina</label>
               <select id="disciplina_filter" className="form-select" name="disciplina" value={filters.disciplina} onChange={updateFilter}>
@@ -404,7 +503,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['planificacoes', 'pct', 'desempenhoPCT'].includes(activeType) && (
+          {['planificacoes', 'pct', 'anoLectivo', 'desempenhoPCT'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="trimestre">Trimestre</label>
               <select id="trimestre" className="form-select" name="trimestre" value={filters.trimestre} onChange={updateFilter}>
@@ -435,7 +534,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['pct', 'desempenhoPCT'].includes(activeType) && (
+          {['pct', 'anoLectivo', 'desempenhoPCT'].includes(activeType) && (
             <>
               {activeType === 'desempenhoPCT' && (
                 <>
@@ -555,7 +654,7 @@ function RelatoriosPage() {
             </section>
           )}
 
-          {activeType === 'desempenhoPCT' ? (
+          {['desempenhoPCT', 'anoLectivo'].includes(activeType) ? (
             <AnalysisSection analysis={report.analysis} />
           ) : (
             <div className="report-section-stack">

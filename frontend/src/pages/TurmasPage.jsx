@@ -24,7 +24,7 @@ const initialForm = {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -36,7 +36,7 @@ function getErrorMessage(error) {
   }
 
   if (error.response.status === 409) {
-    return error.response.data?.detail || 'NÃ£o foi possÃ­vel eliminar esta turma.';
+    return error.response.data?.detail || 'Não foi possível eliminar esta turma.';
   }
 
   if (error.response.status === 400) {
@@ -211,7 +211,7 @@ function TurmaFormModal({
                   </select>
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"

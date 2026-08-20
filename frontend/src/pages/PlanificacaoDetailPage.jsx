@@ -6,7 +6,7 @@ import { getPlanificacao } from '../services/planificacaoService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -91,7 +91,7 @@ function PlanificacaoDetailPage() {
     <div className="page-stack">
       <PageHeader
         title="Planificacao"
-        breadcrumbs={['PlanificaÃ§Ãµes', 'Detalhes']}
+        breadcrumbs={['Planificações', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/planificacoes">
             <i className="bi bi-arrow-left" />
@@ -124,14 +124,14 @@ function PlanificacaoDetailPage() {
             <DetailItem label="Professor" value={planificacao.professor_info?.nome} />
             <DetailItem label="Trimestre" value={formatTrimestre(planificacao.trimestre)} />
             <DetailItem label="Data de Entrega" value={formatDate(planificacao.data_entrega)} />
-            <DetailItem label="Entregou" value={planificacao.entregou ? 'Sim' : 'NÃ£o'} />
+            <DetailItem label="Entregou" value={planificacao.entregou ? 'Sim' : 'Não'} />
             <DetailItem label="Data de Criacao" value={formatDateTime(planificacao.created_at)} />
             <DetailItem label="Ultima Atualizacao" value={formatDateTime(planificacao.updated_at)} />
           </section>
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>ObservaÃ§Ã£o</h2>
+              <h2>Observação</h2>
             </div>
             <p className="mb-0 text-muted">{planificacao.observacao || 'Sem observacoes registadas.'}</p>
           </section>

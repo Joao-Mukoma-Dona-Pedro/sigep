@@ -5,10 +5,10 @@ import PageHeader from '../components/ui/PageHeader';
 import { getReuniao } from '../services/reuniaoService';
 
 function getErrorMessage(error) {
-  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
-  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'ReuniÃ£o nÃ£o encontrada.';
-  return 'Ocorreu um erro ao carregar os dados da reuniÃ£o.';
+  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'Reunião não encontrada.';
+  return 'Ocorreu um erro ao carregar os dados da reunião.';
 }
 
 function formatDate(value) {
@@ -39,7 +39,7 @@ function TextPanel({ title, text }) {
       <div className="panel-card-header">
         <h2>{title}</h2>
       </div>
-      <p className="mb-0 text-muted">{text || 'Sem informaÃ§Ã£o registada.'}</p>
+      <p className="mb-0 text-muted">{text || 'Sem informação registada.'}</p>
     </section>
   );
 }
@@ -76,8 +76,8 @@ function ReuniaoDetailPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title={reuniao?.assunto || 'ReuniÃ£o'}
-        breadcrumbs={['ReuniÃµes', 'Detalhes']}
+        title={reuniao?.assunto || 'Reunião'}
+        breadcrumbs={['Reuniões', 'Detalhes']}
         actions={(
           <Link className="btn btn-outline-secondary" to="/reunioes">
             <i className="bi bi-arrow-left" />
@@ -88,7 +88,7 @@ function ReuniaoDetailPage() {
 
       {isLoading && (
         <section className="empty-state">
-          <h2>A carregar reuniÃ£o...</h2>
+          <h2>A carregar reunião...</h2>
         </section>
       )}
 
@@ -99,13 +99,13 @@ function ReuniaoDetailPage() {
           <section className="detail-grid">
             <DetailItem label="Data" value={formatDate(reuniao.data)} />
             <DetailItem label="Assunto" value={reuniao.assunto} />
-            <DetailItem label="Data de CriaÃ§Ã£o" value={formatDateTime(reuniao.created_at)} />
-            <DetailItem label="Ãšltima AtualizaÃ§Ã£o" value={formatDateTime(reuniao.updated_at)} />
+            <DetailItem label="Data de Criação" value={formatDateTime(reuniao.created_at)} />
+            <DetailItem label="Última Atualização" value={formatDateTime(reuniao.updated_at)} />
           </section>
 
           <TextPanel title="Participantes" text={reuniao.participantes} />
-          <TextPanel title="DecisÃµes" text={reuniao.decisoes} />
-          <TextPanel title="ObservaÃ§Ã£o" text={reuniao.observacao} />
+          <TextPanel title="Decisões" text={reuniao.decisoes} />
+          <TextPanel title="Observação" text={reuniao.observacao} />
         </>
       )}
     </div>

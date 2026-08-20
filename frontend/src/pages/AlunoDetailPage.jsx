@@ -6,7 +6,7 @@ import { getAluno } from '../services/alunoService';
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -140,7 +140,7 @@ function AlunoDetailPage() {
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>ObservaÃ§Ã£o</h2>
+              <h2>Observação</h2>
             </div>
             <p className="mb-0 text-muted">{aluno.observacao || 'Sem observacoes registadas.'}</p>
           </section>

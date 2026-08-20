@@ -5,9 +5,9 @@ import PageHeader from '../components/ui/PageHeader';
 import { getDisciplina } from '../services/disciplinaService';
 
 function getErrorMessage(error) {
-  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
-  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
-  if (error.response.status === 404) return 'Disciplina nÃ£o encontrada.';
+  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
+  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
+  if (error.response.status === 404) return 'Disciplina não encontrada.';
   return 'Ocorreu um erro ao carregar os dados da disciplina.';
 }
 
@@ -85,24 +85,24 @@ function DisciplinaDetailPage() {
               <div className="user-avatar large">{disciplina.nome.charAt(0)}</div>
               <div>
                 <strong>{disciplina.nome}</strong>
-                <span>{disciplina.codigo || 'Sem cÃ³digo registado'}</span>
+                <span>{disciplina.codigo || 'Sem código registado'}</span>
               </div>
             </div>
           </section>
 
           <section className="detail-grid">
             <DetailItem label="Nome da Disciplina" value={disciplina.nome} />
-            <DetailItem label="CÃ³digo" value={disciplina.codigo} />
+            <DetailItem label="Código" value={disciplina.codigo} />
             <DetailItem label="Estado" value={disciplina.estado === 'ATIVO' ? 'Ativa' : 'Inativa'} />
-            <DetailItem label="Data de CriaÃ§Ã£o" value={formatDateTime(disciplina.created_at)} />
-            <DetailItem label="Ãšltima AtualizaÃ§Ã£o" value={formatDateTime(disciplina.updated_at)} />
+            <DetailItem label="Data de Criação" value={formatDateTime(disciplina.created_at)} />
+            <DetailItem label="Última Atualização" value={formatDateTime(disciplina.updated_at)} />
           </section>
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>ObservaÃ§Ã£o</h2>
+              <h2>Observação</h2>
             </div>
-            <p className="mb-0 text-muted">{disciplina.observacao || 'Sem observaÃ§Ãµes registadas.'}</p>
+            <p className="mb-0 text-muted">{disciplina.observacao || 'Sem observações registadas.'}</p>
           </section>
         </>
       )}

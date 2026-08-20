@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 
 function ChangePasswordPage() {
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -25,7 +25,7 @@ function ChangePasswordPage() {
       setMessage('Estrutura visual preparada para alteracao de palavra-passe.');
       setForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch {
-      setError('NÃ£o foi possÃ­vel alterar a palavra-passe.');
+      setError('Não foi possível alterar a palavra-passe.');
     } finally {
       setIsSubmitting(false);
     }

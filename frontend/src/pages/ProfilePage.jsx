@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -10,7 +10,7 @@ function ProfilePage() {
       <section className="page-header">
         <div>
           <p className="eyebrow">Perfil</p>
-          <h1>{user?.full_name || 'Subdirector PedagÃ³gico'}</h1>
+          <h1>{user?.full_name || 'Subdirector Pedagógico'}</h1>
         </div>
         <Link className="btn btn-primary" to="/alterar-palavra-passe">
           Alterar palavra-passe
@@ -25,11 +25,11 @@ function ProfilePage() {
           </div>
           <div>
             <dt>Perfil de acesso</dt>
-            <dd>Subdirector PedagÃ³gico</dd>
+            <dd>Subdirector Pedagógico</dd>
           </div>
           <div>
-            <dt>Ã‚mbito</dt>
-            <dd>Gabinete PedagÃ³gico</dd>
+            <dt>Âmbito</dt>
+            <dd>Gabinete Pedagógico</dd>
           </div>
         </dl>
       </section>

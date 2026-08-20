@@ -797,6 +797,27 @@ a {
   gap: 12px;
 }
 
+.report-chart {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.report-chart svg {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  max-height: 260px;
+}
+
+.report-bars {
+  padding: 6px 0;
+}
+
+.empty-state.compact {
+  padding: 18px;
+  min-height: auto;
+}
+
 .report-analysis-json {
   max-height: 520px;
   margin: 0;

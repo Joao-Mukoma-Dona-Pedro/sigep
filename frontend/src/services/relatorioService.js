@@ -9,6 +9,7 @@ const reportEndpoints = {
   planificacoes: '/relatorios/planificacoes/',
   controloAulas: '/relatorios/controlo-aulas/',
   pct: '/relatorios/pct/',
+  anoLectivo: '/relatorios/desempenho-pct/',
   desempenhoPCT: '/relatorios/desempenho-pct/',
   ocorrencias: '/relatorios/ocorrencias/',
   reunioes: '/relatorios/reunioes/',

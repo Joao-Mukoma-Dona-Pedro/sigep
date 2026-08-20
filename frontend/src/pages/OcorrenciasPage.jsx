@@ -25,13 +25,13 @@ const initialForm = {
 const categorias = {
   DISCIPLINAR: 'Disciplinar',
   COMPORTAMENTAL: 'Comportamental',
-  ACADEMICA: 'AcadÃ©mica',
+  ACADEMICA: 'Académica',
   OUTROS: 'Outros',
 };
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
@@ -127,7 +127,7 @@ function OcorrenciaFormModal({
           <form className="modal-content sigep-modal" onSubmit={onSubmit}>
             <div className="modal-header">
               <div>
-                <p className="eyebrow mb-1">OcorrÃªncias dos Alunos</p>
+                <p className="eyebrow mb-1">Ocorrências dos Alunos</p>
                 <h2 className="modal-title h5">{title}</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
@@ -230,7 +230,7 @@ function OcorrenciaFormModal({
                   />
                 </div>
                 <div className="col-12">
-                  <label className="form-label" htmlFor="observacao">ObservaÃ§Ã£o</label>
+                  <label className="form-label" htmlFor="observacao">Observação</label>
                   <textarea
                     id="observacao"
                     className="form-control"
@@ -433,8 +433,8 @@ function OcorrenciasPage() {
   return (
     <div className="page-stack">
       <PageHeader
-        title="OcorrÃªncias"
-        breadcrumbs={['OcorrÃªncias']}
+        title="Ocorrências"
+        breadcrumbs={['Ocorrências']}
         actions={(
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
             <i className="bi bi-plus-lg" />

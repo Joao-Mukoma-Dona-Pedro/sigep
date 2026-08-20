@@ -75,6 +75,17 @@ class ReportAPIView(APIView):
             'items': items,
         }
 
+    def chart_section(self, titulo, rows, label_key, value_key='media', chart_type='bar', empty='Sem dados suficientes para apresentar o gráfico.'):
+        return {
+            'titulo': titulo,
+            'tipo': 'grafico',
+            'chart_type': chart_type,
+            'rows': rows,
+            'label_key': label_key,
+            'value_key': value_key,
+            'empty': empty,
+        }
+
 
 class ReportOptionsView(ReportAPIView):
     def get(self, request):
@@ -267,6 +278,12 @@ class TurmasReportView(ReportAPIView):
             resultados_qs = ResultadoPCT.objects.filter(aluno__turma=turma).select_related('aluno', 'pct__lecionacao__disciplina')
             ocorrencias_qs = Ocorrencia.objects.filter(aluno__turma=turma).select_related('aluno', 'tipo', 'registada_por')
             controlo_qs = ControloAula.objects.filter(lecionacao__turma=turma).select_related('lecionacao__professor', 'lecionacao__disciplina')
+            analysis = None
+            if params.get('ano_lectivo'):
+                analysis_params = request.query_params.copy()
+                analysis_params['classe'] = turma.classe
+                analysis_params['turma'] = str(turma.id)
+                analysis = turma_analysis(analysis_params)
             sections = [
                 self.detail_section('Identificação da Turma', rows[0]),
                 self.table_section('Alunos', [
@@ -290,6 +307,26 @@ class TurmasReportView(ReportAPIView):
                     }
                     for item in resultados_qs
                 ], 'Sem resultados PCT.'),
+                self.chart_section(
+                    'Gráfico de Rendimento Académico da Turma',
+                    analysis.get('evolucao_media', []) if analysis else [],
+                    'trimestre_label',
+                    'media',
+                    'line',
+                ),
+                self.table_section(
+                    'Indicadores de Aproveitamento',
+                    [
+                        {
+                            'aluno': f"{row['aluno'].get('numero') or '-'} - {row['aluno'].get('nome')}",
+                            'media': row.get('media') if row.get('media') is not None else 'Sem resultado',
+                            'situacao': row.get('situacao'),
+                            'resultados': len(row.get('notas', [])),
+                        }
+                        for row in analysis.get('tabela', [])
+                    ] if analysis else [],
+                    'Sem dados suficientes para análise.',
+                ),
                 self.table_section('Ocorrências', [
                     {
                         'aluno': item.aluno.nome,
@@ -347,6 +384,11 @@ class AlunosReportView(ReportAPIView):
         if params.get('aluno') and rows:
             aluno = queryset.first()
             resultados_qs = ResultadoPCT.objects.filter(aluno=aluno).select_related('pct__lecionacao__disciplina', 'pct__lecionacao__turma')
+            analysis = None
+            if params.get('ano_lectivo'):
+                analysis_params = request.query_params.copy()
+                analysis_params['aluno'] = str(aluno.id)
+                analysis = individual_analysis(analysis_params)
             ocorrencias_qs = aluno.ocorrencias.select_related('tipo', 'registada_por')
             agregados = resultados_qs.aggregate(media=Avg('nota'), maior=Max('nota'), menor=Min('nota'), total=Count('id'))
             sections = [
@@ -361,11 +403,19 @@ class AlunosReportView(ReportAPIView):
                     }
                     for item in resultados_qs
                 ], 'Sem resultados PCT.'),
+                self.chart_section(
+                    'Gráfico de Rendimento Académico do Aluno',
+                    analysis.get('evolucao', []) if analysis else [],
+                    'trimestre_label',
+                    'nota',
+                    'line',
+                ),
                 self.detail_section('Resumo do Aluno', {
-                    'resultados_pct': agregados['total'],
-                    'media_geral': round(float(agregados['media']), 2) if agregados['media'] is not None else 'Sem resultado',
-                    'maior_nota': agregados['maior'] if agregados['maior'] is not None else 'Sem resultado',
-                    'menor_nota': agregados['menor'] if agregados['menor'] is not None else 'Sem resultado',
+                    'ano_lectivo': params.get('ano_lectivo') or 'Todos',
+                    'resultados_pct': analysis['resumo']['quantidade_resultados'] if analysis else agregados['total'],
+                    'media_geral': round(float(analysis['resumo']['media']), 2) if analysis and analysis['resumo']['media'] is not None else round(float(agregados['media']), 2) if agregados['media'] is not None else 'Sem resultado',
+                    'maior_nota': analysis['resumo']['maior_nota'] if analysis and analysis['resumo']['maior_nota'] is not None else agregados['maior'] if agregados['maior'] is not None else 'Sem resultado',
+                    'menor_nota': analysis['resumo']['menor_nota'] if analysis and analysis['resumo']['menor_nota'] is not None else agregados['menor'] if agregados['menor'] is not None else 'Sem resultado',
                     'ocorrencias': ocorrencias_qs.count(),
                     'disciplinas_com_resultados': resultados_qs.values('pct__lecionacao__disciplina').distinct().count(),
                 }),
@@ -657,8 +707,14 @@ class DesempenhoPCTReportView(ReportAPIView):
             'ano_lectivo': ano_lectivo_analysis,
         }
         analysis = analysis_map.get(tipo, ano_lectivo_analysis)(request.query_params)
+        title_map = {
+            'individual': 'Relatório de Desempenho PCT - Aluno',
+            'turma': 'Relatório de Desempenho PCT - Turma',
+            'classe': 'Relatório de Desempenho PCT - Classe',
+            'ano_lectivo': 'Relatório por Ano Lectivo',
+        }
         return Response({
-            'titulo': 'Relatório de Desempenho PCT',
+            'titulo': title_map.get(tipo, 'Relatório de Desempenho PCT'),
             'tipo_analise': tipo,
             'filtros': {key: value for key, value in request.query_params.items() if value not in ('', None)},
             'resumo': analysis.get('resumo', {}),

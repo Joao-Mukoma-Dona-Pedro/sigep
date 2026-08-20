@@ -12,15 +12,15 @@ import {
 
 function getErrorMessage(error) {
   if (!error.response) {
-    return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ ativo.';
+    return 'Não foi possível conectar ao servidor. Verifique se o backend está ativo.';
   }
 
   if (error.response.status === 401) {
-    return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+    return 'A sua sessão expirou. Entre novamente no SIGEP.';
   }
 
   if (error.response.status === 404) {
-    return 'PCT nÃ£o encontrada.';
+    return 'PCT não encontrada.';
   }
 
   if (error.response.status === 400) {
@@ -50,20 +50,20 @@ function formatDateTime(value) {
 
 function formatTrimestre(value) {
   const labels = {
-    1: '1.Âº Trimestre',
-    2: '2.Âº Trimestre',
-    3: '3.Âº Trimestre',
+    1: '1.º Trimestre',
+    2: '2.º Trimestre',
+    3: '3.º Trimestre',
   };
   return labels[value] || '-';
 }
 
 function getEstadoResultados(pct) {
   const labels = {
-    NENHUM: 'NÃ£o lanÃ§ada',
+    NENHUM: 'Não lançada',
     PARCIAL: 'Parcial',
     COMPLETO: 'Completa',
   };
-  return labels[pct?.resultados_estado] || 'NÃ£o lanÃ§ada';
+  return labels[pct?.resultados_estado] || 'Não lançada';
 }
 
 function DetailItem({ label, value }) {
@@ -84,7 +84,7 @@ function ResultadosModal({ rows, onChange, onClose, onSubmit, isSubmitting }) {
             <div className="modal-header">
               <div>
                 <p className="eyebrow mb-1">Resultados PCT</p>
-                <h2 className="modal-title h5">LanÃ§ar Notas</h2>
+                <h2 className="modal-title h5">Lançar Notas</h2>
               </div>
               <button className="btn-close" type="button" aria-label="Fechar" onClick={onClose} />
             </div>
@@ -175,7 +175,7 @@ function ImportModal({
                 <div className="col-md-4 d-flex align-items-end">
                   <button className="btn btn-outline-secondary w-100" type="button" onClick={onPreview} disabled={!file || isSubmitting}>
                     <i className="bi bi-search" />
-                    PrÃ©-visualizar
+                    Pré-visualizar
                   </button>
                 </div>
               </div>
@@ -217,7 +217,7 @@ function ImportModal({
               </button>
               <button className="btn btn-primary" type="button" onClick={onConfirm} disabled={!preview || hasErrors || isSubmitting}>
                 <i className="bi bi-cloud-upload" />
-                {isSubmitting ? 'A importar...' : 'Confirmar ImportaÃ§Ã£o'}
+                {isSubmitting ? 'A importar...' : 'Confirmar Importação'}
               </button>
             </div>
           </div>
@@ -376,18 +376,18 @@ function PctDetailPage() {
             <DetailItem label="Turma" value={pct.lecionacao_info?.turma} />
             <DetailItem label="Ano Lectivo" value={pct.lecionacao_info?.ano_lectivo} />
             <DetailItem label="Trimestre" value={formatTrimestre(pct.trimestre)} />
-            <DetailItem label="Data de AplicaÃ§Ã£o" value={formatDate(pct.data_aplicacao)} />
+            <DetailItem label="Data de Aplicação" value={formatDate(pct.data_aplicacao)} />
             <DetailItem label="Estado das Notas" value={`${getEstadoResultados(pct)} - ${pct.resultados_count || 0}/${pct.alunos_count || 0}`} />
             <DetailItem label="Resultados" value={`${pct.resultados_count || 0}/${pct.alunos_count || 0}`} />
-            <DetailItem label="Data de CriaÃ§Ã£o" value={formatDateTime(pct.created_at)} />
-            <DetailItem label="Ãšltima AtualizaÃ§Ã£o" value={formatDateTime(pct.updated_at)} />
+            <DetailItem label="Data de Criação" value={formatDateTime(pct.created_at)} />
+            <DetailItem label="Última Atualização" value={formatDateTime(pct.updated_at)} />
           </section>
 
           <section className="panel-card">
             <div className="panel-card-header">
-              <h2>ObservaÃ§Ã£o</h2>
+              <h2>Observação</h2>
             </div>
-            <p className="mb-0 text-muted">{pct.observacao || 'Sem observaÃ§Ãµes registadas.'}</p>
+            <p className="mb-0 text-muted">{pct.observacao || 'Sem observações registadas.'}</p>
           </section>
 
           <section className="panel-card">
@@ -403,7 +403,7 @@ function PctDetailPage() {
                 </button>
                 <button className="btn btn-primary" type="button" onClick={openResultsModal}>
                   <i className="bi bi-pencil-square" />
-                  {pct.resultados_count ? 'Editar Notas' : 'LanÃ§ar Notas'}
+                  {pct.resultados_count ? 'Editar Notas' : 'Lançar Notas'}
                 </button>
               </div>
             </div>

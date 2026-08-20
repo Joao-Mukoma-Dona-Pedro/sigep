@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import PageHeader from '../components/ui/PageHeader';
 import StatCard from '../components/ui/StatCard';
@@ -11,8 +11,8 @@ const emptySummary = {
 };
 
 function getErrorMessage(error) {
-  if (!error.response) return 'NÃ£o foi possÃ­vel conectar ao servidor. Verifique se o backend estÃ¡ activo.';
-  if (error.response.status === 401) return 'A sua sessÃ£o expirou. Entre novamente no SIGEP.';
+  if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se o backend está activo.';
+  if (error.response.status === 401) return 'A sua sessão expirou. Entre novamente no SIGEP.';
   return 'Ocorreu um erro ao carregar o Dashboard.';
 }
 
