@@ -1,28 +1,30 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { askAssistant } from '../services/assistantService';
+
 const AssistantContext = createContext(null);
 const POSITION_STORAGE_KEY = 'sigep.assistant.position';
 const DEFAULT_MARGIN = 18;
 const BUTTON_SIZE = 48;
 
 const routeContexts = [
-  { prefix: '/dashboard', label: 'Dashboard', suggestions: ['Analisar situação da escola', 'Consultar desempenho'] },
-  { prefix: '/professores', label: 'Professores', suggestions: ['Ver professores', 'Consultar planificações'] },
-  { prefix: '/disciplinas', label: 'Disciplinas', suggestions: ['Ver disciplinas', 'Consultar leccionações'] },
+  { prefix: '/dashboard', label: 'Dashboard', suggestions: ['Analisar situacao da escola', 'Consultar desempenho'] },
+  { prefix: '/professores', label: 'Professores', suggestions: ['Ver professores', 'Consultar planificacoes'] },
+  { prefix: '/disciplinas', label: 'Disciplinas', suggestions: ['Ver disciplinas', 'Consultar leccionacoes'] },
   { prefix: '/turmas', label: 'Turmas', suggestions: ['Analisar turma', 'Ver desempenho PCT'] },
-  { prefix: '/alunos', label: 'Alunos', suggestions: ['Consultar desempenho', 'Ver ocorrências'] },
-  { prefix: '/leccionacoes', label: 'Leccionações', suggestions: ['Ver leccionações', 'Consultar contexto pedagógico'] },
-  { prefix: '/lecionacoes', label: 'Leccionações', suggestions: ['Ver leccionações', 'Consultar contexto pedagógico'] },
-  { prefix: '/planificacoes', label: 'Planificações', suggestions: ['Ver entregas', 'Consultar pendências'] },
+  { prefix: '/alunos', label: 'Alunos', suggestions: ['Consultar desempenho', 'Ver ocorrencias'] },
+  { prefix: '/leccionacoes', label: 'Leccionacoes', suggestions: ['Ver leccionacoes', 'Consultar contexto pedagogico'] },
+  { prefix: '/lecionacoes', label: 'Leccionacoes', suggestions: ['Ver leccionacoes', 'Consultar contexto pedagogico'] },
+  { prefix: '/planificacoes', label: 'Planificacoes', suggestions: ['Ver entregas', 'Consultar pendencias'] },
   { prefix: '/controlo-aulas', label: 'Controlo de Aulas', suggestions: ['Ver aulas assistidas', 'Consultar aulas pendentes'] },
   { prefix: '/pct', label: 'PCT', suggestions: ['Analisar desempenho', 'Ver resultados', 'Comparar PCT'] },
-  { prefix: '/analise-pct', label: 'Análise PCT', suggestions: ['Comparar trimestres', 'Analisar turma'] },
-  { prefix: '/ocorrencias', label: 'Ocorrências', suggestions: ['Ver ocorrências', 'Consultar alunos acompanhados'] },
-  { prefix: '/tipos-ocorrencias', label: 'Tipos de Ocorrências', suggestions: ['Ver categorias', 'Consultar tipos'] },
-  { prefix: '/reunioes', label: 'Reuniões', suggestions: ['Ver reuniões', 'Consultar decisões'] },
-  { prefix: '/relatorios', label: 'Relatórios', suggestions: ['Resumir situação', 'Preparar relatório'] },
-  { prefix: '/configuracoes', label: 'Configurações', suggestions: ['Ver perfil', 'Alterar preferências'] },
+  { prefix: '/analise-pct', label: 'Analise PCT', suggestions: ['Comparar trimestres', 'Analisar turma'] },
+  { prefix: '/ocorrencias', label: 'Ocorrencias', suggestions: ['Ver ocorrencias', 'Consultar alunos acompanhados'] },
+  { prefix: '/tipos-ocorrencias', label: 'Tipos de Ocorrencias', suggestions: ['Ver categorias', 'Consultar tipos'] },
+  { prefix: '/reunioes', label: 'Reunioes', suggestions: ['Ver reunioes', 'Consultar decisoes'] },
+  { prefix: '/relatorios', label: 'Relatorios', suggestions: ['Resumir situacao', 'Preparar relatorio'] },
+  { prefix: '/configuracoes', label: 'Configuracoes', suggestions: ['Ver perfil', 'Alterar preferencias'] },
 ];
 
 function getViewport() {
@@ -75,7 +77,7 @@ function getStoredPosition() {
 function getPageContext(pathname) {
   return routeContexts.find((item) => pathname.startsWith(item.prefix)) || {
     label: 'SIGEP',
-    suggestions: ['Consultar informação', 'Analisar dados'],
+    suggestions: ['Consultar informacao', 'Analisar dados'],
   };
 }
 
@@ -84,7 +86,7 @@ function createInitialMessages(pageLabel) {
     {
       id: 'welcome',
       role: 'assistant',
-      text: `Olá, Subdirector Pedagógico. Estou preparado visualmente para apoiar no contexto ${pageLabel}. A ligação à IA real ainda não está activa.`,
+      text: `Ola, Subdirector Pedagogico. Estou preparado para apoiar no contexto ${pageLabel}. Quando a IA estiver configurada, poderei consultar dados autorizados do SIGEP.`,
     },
   ];
 }
@@ -95,6 +97,9 @@ export function AssistantProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPositionState] = useState(getStoredPosition);
   const [messages, setMessages] = useState(() => createInitialMessages(pageContext.label));
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [assistantAvailable, setAssistantAvailable] = useState(null);
+  const [error, setError] = useState('');
 
   const setPosition = useCallback((nextPosition) => {
     const safePosition = clampPosition(nextPosition);
@@ -106,25 +111,62 @@ export function AssistantProvider({ children }) {
   const closeAssistant = useCallback(() => setIsOpen(false), []);
   const toggleAssistant = useCallback(() => setIsOpen((current) => !current), []);
 
-  const sendLocalMessage = useCallback((text) => {
-    const trimmedText = text.trim();
-    if (!trimmedText) return;
+  const sendLocalMessage = useCallback(
+    async (text) => {
+      const trimmedText = text.trim();
+      if (!trimmedText || isProcessing) return;
 
-    const timestamp = Date.now();
-    setMessages((current) => [
-      ...current,
-      { id: `user-${timestamp}`, role: 'user', text: trimmedText },
-      {
-        id: `assistant-${timestamp}`,
-        role: 'assistant',
-        text: 'Assistente ainda não ligado ao serviço de IA. Esta é apenas uma demonstração da interface.',
-      },
-    ]);
-  }, []);
+      const timestamp = Date.now();
+      setError('');
+      setIsProcessing(true);
+      setMessages((current) => [...current, { id: `user-${timestamp}`, role: 'user', text: trimmedText }]);
+
+      try {
+        const result = await askAssistant({
+          message: trimmedText,
+          route: location.pathname,
+          pageContext: pageContext.label,
+        });
+        const answer = result?.answer || 'Nao foi possivel obter uma resposta do Assistente SIGEP neste momento.';
+        setAssistantAvailable(Boolean(result?.assistant_available));
+        setMessages((current) => [
+          ...current,
+          {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            text: answer,
+          },
+        ]);
+      } catch (requestError) {
+        const statusCode = requestError?.response?.status;
+        let friendlyMessage = 'Nao foi possivel contactar o Assistente SIGEP. Verifique a ligacao e tente novamente.';
+        if (statusCode === 401) {
+          friendlyMessage = 'A sessao expirou. Inicie sessao novamente para usar o Assistente SIGEP.';
+        }
+        if (statusCode === 403) {
+          friendlyMessage = 'Apenas o Subdirector ou Director Pedagogico pode usar o Assistente SIGEP.';
+        }
+        setError(friendlyMessage);
+        setMessages((current) => [
+          ...current,
+          {
+            id: `assistant-error-${Date.now()}`,
+            role: 'assistant',
+            text: friendlyMessage,
+          },
+        ]);
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [isProcessing, location.pathname, pageContext.label],
+  );
 
   useEffect(() => {
     setIsOpen(false);
     setMessages(createInitialMessages(pageContext.label));
+    setError('');
+    setAssistantAvailable(null);
   }, [location.pathname, pageContext.label]);
 
   useEffect(() => {
@@ -142,13 +184,29 @@ export function AssistantProvider({ children }) {
       position,
       pageContext,
       messages,
+      isProcessing,
+      assistantAvailable,
+      error,
       openAssistant,
       closeAssistant,
       toggleAssistant,
       setPosition,
       sendLocalMessage,
     }),
-    [closeAssistant, isOpen, messages, openAssistant, pageContext, position, sendLocalMessage, setPosition, toggleAssistant],
+    [
+      assistantAvailable,
+      closeAssistant,
+      error,
+      isOpen,
+      isProcessing,
+      messages,
+      openAssistant,
+      pageContext,
+      position,
+      sendLocalMessage,
+      setPosition,
+      toggleAssistant,
+    ],
   );
 
   return <AssistantContext.Provider value={value}>{children}</AssistantContext.Provider>;

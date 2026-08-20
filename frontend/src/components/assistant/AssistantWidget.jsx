@@ -16,12 +16,13 @@ function AssistantMessage({ message }) {
 }
 
 function AssistantPanel() {
-  const { closeAssistant, messages, pageContext, sendLocalMessage } = useAssistant();
+  const { assistantAvailable, closeAssistant, error, isProcessing, messages, pageContext, sendLocalMessage } = useAssistant();
   const [draft, setDraft] = useState('');
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    sendLocalMessage(draft);
+    if (isProcessing) return;
+    await sendLocalMessage(draft);
     setDraft('');
   }
 
@@ -44,18 +45,29 @@ function AssistantPanel() {
       <div className="assistant-panel-body" aria-live="polite">
         <div className="assistant-context">
           <i className="bi bi-info-circle" aria-hidden="true" />
-          <span>Interface demonstrativa. Nenhuma consulta real ou serviço externo está activo.</span>
+          <span>
+            {assistantAvailable === false
+              ? 'IA indisponivel. Configure a chave no backend para activar respostas inteligentes.'
+              : 'As respostas usam apenas ferramentas de leitura autorizadas do SIGEP.'}
+          </span>
         </div>
 
         <div className="assistant-messages">
           {messages.map((message) => (
             <AssistantMessage key={message.id} message={message} />
           ))}
+          {isProcessing && (
+            <div className="assistant-message is-assistant">
+              <span>Assistente SIGEP</span>
+              <p>A processar a pergunta...</p>
+            </div>
+          )}
+          {error && <div className="alert alert-warning py-2 mb-0">{error}</div>}
         </div>
 
-        <div className="assistant-suggestions" aria-label="Sugestões contextuais">
+        <div className="assistant-suggestions" aria-label="Sugestoes contextuais">
           {pageContext.suggestions.map((suggestion) => (
-            <button key={suggestion} type="button" onClick={() => handleSuggestionClick(suggestion)}>
+            <button key={suggestion} type="button" onClick={() => handleSuggestionClick(suggestion)} disabled={isProcessing}>
               {suggestion}
             </button>
           ))}
@@ -73,10 +85,11 @@ function AssistantPanel() {
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Escreva a sua pergunta..."
           aria-label="Escreva a sua pergunta"
+          disabled={isProcessing}
         />
-        <button type="submit" aria-label="Enviar mensagem">
+        <button type="submit" aria-label="Enviar mensagem" disabled={isProcessing || !draft.trim()}>
           <i className="bi bi-send" aria-hidden="true" />
-          <span>Enviar</span>
+          <span>{isProcessing ? 'A enviar' : 'Enviar'}</span>
         </button>
       </form>
     </section>
