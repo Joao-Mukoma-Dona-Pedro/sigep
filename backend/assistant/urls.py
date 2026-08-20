@@ -1,0 +1,8 @@
+from django.urls import path
+
+from .views import AssistantQueryView
+
+urlpatterns = [
+    path('assistant/query/', AssistantQueryView.as_view(), name='assistant-query'),
+]
+
