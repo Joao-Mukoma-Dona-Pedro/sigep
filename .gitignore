@@ -7,6 +7,7 @@ Thumbs.db
 # Variaveis de ambiente
 .env
 .env.local
+.env.*.local
 frontend/.env
 backend/.env
 
@@ -26,6 +27,7 @@ backend/**/*.py[cod]
 backend/db.sqlite3
 backend/staticfiles/
 backend/media/
+**/__pycache__/
 
 # Python tooling
 .pytest_cache/
@@ -35,6 +37,9 @@ backend/media/
 # Base de dados
 database/data/
 *.sql.gz
+*.dump
+backups/
+*.log
 
 # Temporarios locais
 .tmp/
