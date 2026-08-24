@@ -98,6 +98,7 @@ class RelatoriosAPITests(APITestCase):
     def test_endpoints_exigem_autenticacao(self):
         endpoints = [
             'relatorios-opcoes',
+            'relatorios-geral',
             'relatorios-professores',
             'relatorios-disciplinas',
             'relatorios-lecionacoes',
@@ -124,6 +125,32 @@ class RelatoriosAPITests(APITestCase):
         self.assertEqual(response.data['professores'][0]['nome'], self.professor.nome)
         self.assertEqual(response.data['disciplinas'][0]['nome'], self.disciplina.nome)
         self.assertIn('2026', response.data['anos_lectivos'])
+
+    def test_relatorio_geral_consolida_apenas_dados_reais(self):
+        self.authenticate()
+
+        response = self.client.get(reverse('relatorios-geral'))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['titulo'], 'Relatório Geral do SIGEP')
+        self.assertEqual(response.data['resumo']['professores'], 1)
+        self.assertEqual(response.data['resumo']['alunos'], 1)
+        self.assertEqual(response.data['resumo']['pct'], 1)
+        self.assertEqual(response.data['resumo']['resultados_pct'], 1)
+        self.assertEqual(response.data['resumo']['ocorrencias'], 1)
+        self.assertEqual(response.data['resumo']['reunioes'], 1)
+        self.assertIn('PCT', [section['titulo'] for section in response.data['seccoes']])
+
+    def test_relatorio_geral_respeita_filtros_e_nao_inventa_relacao_de_reuniao(self):
+        self.authenticate()
+
+        response = self.client.get(reverse('relatorios-geral'), {'ano_lectivo': '2099'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['resumo']['alunos'], 0)
+        self.assertEqual(response.data['resumo']['pct'], 0)
+        self.assertIsNone(response.data['resumo']['reunioes'])
+        self.assertEqual(response.data['seccoes'][0]['items']['aviso'], 'Sem dados disponíveis para este período.')
 
     def test_relatorio_professores_filtra_por_disciplina(self):
         self.authenticate()

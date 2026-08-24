@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import PageHeader from '../components/ui/PageHeader';
 import StatCard from '../components/ui/StatCard';
+import DonutChart from '../components/charts/DonutChart';
 import { getDashboardSummary } from '../services/dashboardService';
 
 const emptySummary = {
@@ -17,44 +18,19 @@ function getErrorMessage(error) {
 }
 
 function RealChart({ chart }) {
-  if (!chart || !chart.total) {
-    return (
-      <article className="panel-card">
-        <div className="panel-card-header">
-          <h2>{chart?.title || 'Indicador'}</h2>
-        </div>
-        <p className="text-muted mb-0">Sem dados suficientes.</p>
-      </article>
-    );
-  }
-
-  return (
-    <article className="panel-card">
-      <div className="panel-card-header">
-        <h2>{chart.title}</h2>
-      </div>
-      <div className="fake-chart" aria-label={chart.title}>
-        {chart.items.map((item) => {
-          const width = chart.total ? Math.round((item.value / chart.total) * 100) : 0;
-          return (
-            <div className="chart-row" key={item.label}>
-              <span>{item.label}</span>
-              <div className="chart-track">
-                <div className="chart-bar tone-blue" style={{ width: `${width}%` }} />
-              </div>
-              <strong>{item.value}</strong>
-            </div>
-          );
-        })}
-      </div>
-    </article>
-  );
+  const colors = ['#22c55e', '#f59e0b', '#ef4444', '#1263e6', '#854bd6'];
+  return <DonutChart
+    title={chart?.title || 'Indicador'}
+    subtitle="Dados registados no SIGEP"
+    data={(chart?.items || []).map((item, index) => ({ ...item, color: colors[index % colors.length] }))}
+  />;
 }
 
 function DashboardPage() {
   const [summary, setSummary] = useState(emptySummary);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -77,11 +53,16 @@ function DashboardPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div className="page-stack">
-      <PageHeader title="Dashboard" breadcrumbs={['Dashboard']} />
+      <PageHeader title="Dashboard" breadcrumbs={['Dashboard']} actions={(
+        <button className="btn btn-primary" type="button" onClick={() => setRefreshKey((value) => value + 1)} disabled={isLoading}>
+          <i className={`bi bi-arrow-clockwise ${isLoading ? 'spin' : ''}`} aria-hidden="true" />
+          {isLoading ? 'A actualizar...' : 'Actualizar'}
+        </button>
+      )} />
 
       {error && <div className="alert alert-danger">{error}</div>}
 

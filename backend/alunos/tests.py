@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -208,3 +209,74 @@ class AlunoAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('turma', response.data)
+
+    def csv_file(self, content='Número do aluno;Nome completo;Nome do encarregado;Contacto do encarregado\n10;Ana José;;\n'):
+        return SimpleUploadedFile('alunos.csv', content.encode('utf-8'), content_type='text/csv')
+
+    def import_url(self, action):
+        return reverse(f'alunos-{action}')
+
+    def test_preview_csv_valido_nao_altera_banco(self):
+        self.authenticate()
+        response = self.client.post(self.import_url('import-preview'), {'turma': self.turma.id, 'ficheiro': self.csv_file()}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['resumo']['novos'], 1)
+        self.assertEqual(Aluno.objects.count(), 0)
+
+    def test_confirmacao_grava_importacao(self):
+        self.authenticate()
+        response = self.client.post(self.import_url('import-confirm'), {'turma': self.turma.id, 'ficheiro': self.csv_file()}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Aluno.objects.filter(numero=10, nome='Ana José').exists())
+
+    def test_importacao_exige_autenticacao(self):
+        response = self.client.post(self.import_url('import-preview'), {'turma': self.turma.id, 'ficheiro': self.csv_file()}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_numero_e_nome_obrigatorios_e_duplicados(self):
+        self.authenticate()
+        file = self.csv_file('Número do aluno;Nome completo\n;Maria\n2;\n3;A\n3;B\n')
+        response = self.client.post(self.import_url('import-preview'), {'turma': self.turma.id, 'ficheiro': file}, format='multipart')
+        self.assertEqual(response.data['resumo']['erros'], 4)
+        self.assertFalse(response.data['linhas'][0]['numero'])
+
+    def test_actualiza_existente_sem_apagar_opcionais(self):
+        self.authenticate()
+        aluno = self.create_aluno(numero=10, encarregado_educacao='Maria', telefone_encarregado='923')
+        file = self.csv_file('Número do aluno;Nome completo\n10;Novo Nome\n')
+        response = self.client.post(self.import_url('import-confirm'), {'turma': self.turma.id, 'ficheiro': file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        aluno.refresh_from_db()
+        self.assertEqual(aluno.nome, 'Novo Nome')
+        self.assertEqual(aluno.encarregado_educacao, 'Maria')
+        self.assertEqual(aluno.telefone_encarregado, '923')
+
+    def test_extensao_invalida(self):
+        self.authenticate()
+        file = SimpleUploadedFile('alunos.txt', b'bad')
+        response = self.client.post(self.import_url('import-preview'), {'turma': self.turma.id, 'ficheiro': file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_exportacao_respeita_filtro_turma(self):
+        self.authenticate()
+        self.create_aluno(numero=1, nome='Incluído')
+        self.create_aluno(numero=2, nome='Excluído', turma=self.outra_turma)
+        response = self.client.get(self.import_url('export-students'), {'turma': self.turma.id})
+        body = response.content.decode('utf-8-sig')
+        self.assertIn('Incluído', body)
+        self.assertNotIn('Excluído', body)
+
+    def test_xlsx_valido(self):
+        from openpyxl import Workbook
+        from io import BytesIO
+        self.authenticate()
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.append(['Número do aluno', 'Nome completo'])
+        sheet.append([15, 'Aluno XLSX'])
+        stream = BytesIO()
+        workbook.save(stream)
+        file = SimpleUploadedFile('alunos.xlsx', stream.getvalue())
+        response = self.client.post(self.import_url('import-preview'), {'turma': self.turma.id, 'ficheiro': file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['resumo']['novos'], 1)

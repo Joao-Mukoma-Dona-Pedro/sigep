@@ -136,6 +136,131 @@ class ReportOptionsView(ReportAPIView):
         })
 
 
+class GeralReportView(ReportAPIView):
+    """Resumo institucional construído apenas a partir das relações existentes."""
+
+    def get(self, request):
+        params = request.query_params
+        ano = params.get('ano_lectivo')
+        classe = params.get('classe')
+        turma = params.get('turma')
+        disciplina = params.get('disciplina')
+        trimestre = params.get('trimestre')
+
+        turmas = Turma.objects.all()
+        alunos = Aluno.objects.all()
+        lecionacoes = Lecionacao.objects.all()
+        planificacoes = Planificacao.objects.filter(lecionacao__isnull=False)
+        controlos = ControloAula.objects.all()
+        pcts = PCT.objects.all()
+        resultados = ResultadoPCT.objects.all()
+        ocorrencias = Ocorrencia.objects.all()
+
+        if ano:
+            turmas = turmas.filter(ano_lectivo=ano)
+            alunos = alunos.filter(turma__ano_lectivo=ano)
+            lecionacoes = lecionacoes.filter(ano_lectivo=ano)
+            planificacoes = planificacoes.filter(lecionacao__ano_lectivo=ano)
+            controlos = controlos.filter(lecionacao__ano_lectivo=ano)
+            pcts = pcts.filter(lecionacao__ano_lectivo=ano)
+            resultados = resultados.filter(pct__lecionacao__ano_lectivo=ano)
+            ocorrencias = ocorrencias.filter(aluno__turma__ano_lectivo=ano)
+        if classe:
+            turmas = turmas.filter(classe=classe)
+            alunos = alunos.filter(turma__classe=classe)
+            lecionacoes = lecionacoes.filter(turma__classe=classe)
+            planificacoes = planificacoes.filter(lecionacao__turma__classe=classe)
+            controlos = controlos.filter(lecionacao__turma__classe=classe)
+            pcts = pcts.filter(lecionacao__turma__classe=classe)
+            resultados = resultados.filter(aluno__turma__classe=classe)
+            ocorrencias = ocorrencias.filter(aluno__turma__classe=classe)
+        if turma:
+            turmas = turmas.filter(pk=turma)
+            alunos = alunos.filter(turma_id=turma)
+            lecionacoes = lecionacoes.filter(turma_id=turma)
+            planificacoes = planificacoes.filter(lecionacao__turma_id=turma)
+            controlos = controlos.filter(lecionacao__turma_id=turma)
+            pcts = pcts.filter(lecionacao__turma_id=turma)
+            resultados = resultados.filter(aluno__turma_id=turma)
+            ocorrencias = ocorrencias.filter(aluno__turma_id=turma)
+        if disciplina:
+            lecionacoes = lecionacoes.filter(disciplina_id=disciplina)
+            planificacoes = planificacoes.filter(lecionacao__disciplina_id=disciplina)
+            controlos = controlos.filter(lecionacao__disciplina_id=disciplina)
+            pcts = pcts.filter(lecionacao__disciplina_id=disciplina)
+            resultados = resultados.filter(pct__lecionacao__disciplina_id=disciplina)
+        if trimestre:
+            planificacoes = planificacoes.filter(trimestre=trimestre)
+            pcts = pcts.filter(trimestre=trimestre)
+            resultados = resultados.filter(pct__trimestre=trimestre)
+
+        professores_ids = lecionacoes.values_list('professor_id', flat=True)
+        disciplinas_ids = lecionacoes.values_list('disciplina_id', flat=True)
+        has_pedagogical_filter = any((ano, classe, turma, disciplina, trimestre))
+        summary = {
+            'professores': Professor.objects.filter(id__in=professores_ids).count() if has_pedagogical_filter else Professor.objects.count(),
+            'disciplinas': Disciplina.objects.filter(id__in=disciplinas_ids).count() if has_pedagogical_filter else Disciplina.objects.count(),
+            'turmas': turmas.count(),
+            'alunos': alunos.count(),
+            'leccionacoes': lecionacoes.count(),
+            'planificacoes': planificacoes.count(),
+            'aulas_registadas': controlos.count(),
+            'pct': pcts.count(),
+            'resultados_pct': resultados.count(),
+            'ocorrencias': ocorrencias.count(),
+            'reunioes': None if has_pedagogical_filter else Reuniao.objects.count(),
+        }
+
+        sections = []
+        structure_rows = list(
+            turmas.select_related('diretor_turma').annotate(
+                total_alunos=Count('alunos', distinct=True),
+                total_lecionacoes=Count('lecionacoes', distinct=True),
+            ).values('classe', 'sala', 'ano_lectivo', 'total_alunos', 'total_lecionacoes')
+        )
+        if structure_rows:
+            sections.append(self.table_section('Estrutura Pedagógica', structure_rows))
+
+        if planificacoes.exists():
+            sections.append(self.detail_section('Planificações', {
+                'total': summary['planificacoes'],
+                'entregues': planificacoes.filter(entregou=True).count(),
+                'nao_entregues': planificacoes.filter(entregou=False).count(),
+            }))
+        if controlos.exists():
+            sections.append(self.detail_section('Controlo de Aulas', {
+                'aulas_registadas': summary['aulas_registadas'],
+                'aulas_assistidas': controlos.filter(aula_assistida=True).count(),
+                'aulas_nao_assistidas': controlos.filter(aula_assistida=False).count(),
+            }))
+        if pcts.exists():
+            pct_aggregate = resultados.aggregate(media=Avg('nota'), maior_nota=Max('nota'), menor_nota=Min('nota'))
+            sections.append(self.detail_section('PCT', {
+                'pct_registadas': summary['pct'],
+                'resultados_lancados': summary['resultados_pct'],
+                'media': round(float(pct_aggregate['media']), 2) if pct_aggregate['media'] is not None else None,
+                'maior_nota': pct_aggregate['maior_nota'],
+                'menor_nota': pct_aggregate['menor_nota'],
+                'aviso': None if resultados.exists() else 'Sem resultados PCT suficientes para análise.',
+            }))
+        occurrence_rows = list(
+            ocorrencias.values('tipo__categoria').annotate(quantidade=Count('id')).order_by('tipo__categoria')
+        )
+        if occurrence_rows:
+            sections.append(self.table_section('Ocorrências por Categoria', [
+                {'categoria': row['tipo__categoria'] or 'Sem categoria', 'quantidade': row['quantidade']}
+                for row in occurrence_rows
+            ]))
+        if not has_pedagogical_filter and Reuniao.objects.exists():
+            sections.append(self.table_section('Reuniões', list(
+                Reuniao.objects.values('data', 'assunto', 'participantes', 'decisoes', 'observacao')
+            )))
+        if not sections:
+            sections = [self.detail_section('Dados', {'aviso': 'Sem dados disponíveis para este período.'})]
+
+        return self.report_response('Relatório Geral do SIGEP', params, [], summary=summary, sections=sections)
+
+
 class ProfessoresReportView(ReportAPIView):
     def get(self, request):
         queryset = Professor.objects.prefetch_related('lecionacoes__disciplina', 'lecionacoes__turma').order_by('nome')

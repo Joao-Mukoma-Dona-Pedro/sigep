@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import PageHeader from '../components/ui/PageHeader';
+import DonutChart from '../components/charts/DonutChart';
 import { getRelatorio, listRelatorioOptions } from '../services/relatorioService';
 
 const reportTypes = [
+  { key: 'geral', title: 'Geral' },
   { key: 'professores', title: 'Professor' },
   { key: 'alunos', title: 'Aluno' },
   { key: 'turmas', title: 'Turma' },
@@ -221,12 +223,18 @@ function AnalysisSection({ analysis }) {
   const chartRows = analysis?.evolucao || analysis?.evolucao_media || analysis?.evolucao_por_trimestre || analysis?.desempenho_por_disciplina || analysis?.media_por_turma || analysis?.desempenho_por_classe || [];
   const chartLabel = chartRows === analysis?.desempenho_por_disciplina ? 'disciplina' : chartRows === analysis?.media_por_turma ? 'turma' : chartRows === analysis?.desempenho_por_classe ? 'classe' : 'trimestre_label';
   const chartType = chartRows === analysis?.evolucao || chartRows === analysis?.evolucao_media || chartRows === analysis?.evolucao_por_trimestre ? 'line' : 'bar';
+  const expected = Number(analysis?.resumo?.resultados_esperados || 0);
+  const launched = Number(analysis?.resumo?.quantidade_resultados || 0);
 
   return (
     <div className="report-section-stack">
       {Array.isArray(analysis?.avisos) && analysis.avisos.length > 0 && (
         <div className="alert alert-warning mb-0">{analysis.avisos.join(' ')}</div>
       )}
+      {expected > 0 && <DonutChart title="Cobertura dos Resultados PCT" data={[
+        { label: 'Resultados lançados', value: launched, color: '#22c55e' },
+        { label: 'Sem resultado', value: Math.max(expected - launched, 0), color: '#ef4444' },
+      ]} size={190} strokeWidth={24} />}
       <section className="report-section">
         <h3>Gráfico de Rendimento Académico</h3>
         <ReportChart
@@ -270,7 +278,7 @@ function ReportSection({ section }) {
 }
 
 function RelatoriosPage() {
-  const [activeType, setActiveType] = useState('professores');
+  const [activeType, setActiveType] = useState('geral');
   const [filters, setFilters] = useState(initialFilters);
   const [options, setOptions] = useState({
     anos_lectivos: [],
@@ -357,6 +365,7 @@ function RelatoriosPage() {
 
   function cleanFilters() {
     const allowedByType = {
+      geral: ['ano_lectivo', 'trimestre', 'classe', 'turma', 'disciplina'],
       professores: ['professor', 'estado', 'disciplina', 'turma', 'ano_lectivo'],
       alunos: ['aluno', 'ano_lectivo', 'classe', 'turma', 'estado'],
       turmas: ['turma', 'ano_lectivo', 'classe', 'estado'],
@@ -467,7 +476,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
+          {['geral', 'professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="ano_lectivo">Ano Lectivo</label>
               <select id="ano_lectivo" className="form-select" name="ano_lectivo" value={filters.ano_lectivo} onChange={updateFilter}>
@@ -476,7 +485,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['alunos', 'turmas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
+          {['geral', 'alunos', 'turmas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="classe">Classe</label>
               <select id="classe" className="form-select" name="classe" value={filters.classe} onChange={updateFilter}>
@@ -485,7 +494,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
+          {['geral', 'professores', 'alunos', 'turmas', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'ocorrencias', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="turma">Turma</label>
               <select id="turma" className="form-select" name="turma" value={filters.turma} onChange={updateFilter}>
@@ -494,7 +503,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['professores', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'lecionacoes'].includes(activeType) && (
+          {['geral', 'professores', 'controloAulas', 'pct', 'anoLectivo', 'desempenhoPCT', 'lecionacoes'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="disciplina_filter">Disciplina</label>
               <select id="disciplina_filter" className="form-select" name="disciplina" value={filters.disciplina} onChange={updateFilter}>
@@ -503,7 +512,7 @@ function RelatoriosPage() {
               </select>
             </div>
           )}
-          {['planificacoes', 'pct', 'anoLectivo', 'desempenhoPCT'].includes(activeType) && (
+          {['geral', 'planificacoes', 'pct', 'anoLectivo', 'desempenhoPCT'].includes(activeType) && (
             <div className="col-md-3">
               <label className="form-label" htmlFor="trimestre">Trimestre</label>
               <select id="trimestre" className="form-select" name="trimestre" value={filters.trimestre} onChange={updateFilter}>
@@ -646,6 +655,16 @@ function RelatoriosPage() {
               </div>
             ))}
           </div>
+
+          {activeType === 'pct' && report.resumo && <DonutChart
+            title="Estado dos Resultados PCT"
+            subtitle="Cobertura das PCT seleccionadas"
+            data={[
+              { label: 'Completas', value: report.resumo.completas, color: '#22c55e' },
+              { label: 'Parciais', value: report.resumo.parciais, color: '#f59e0b' },
+              { label: 'Sem resultados', value: report.resumo.nao_lancadas, color: '#ef4444' },
+            ]}
+          />}
 
           {Object.keys(report.filtros || {}).length > 0 && (
             <section className="report-section">

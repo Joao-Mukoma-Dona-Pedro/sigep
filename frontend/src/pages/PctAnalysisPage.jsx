@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import PageHeader from '../components/ui/PageHeader';
+import DonutChart from '../components/charts/DonutChart';
 import {
   getAnoLectivoAnalysis,
   getClasseAnalysis,
@@ -218,6 +219,20 @@ function SummaryCards({ summary, mode }) {
       {items.map((item) => <StatPanel key={item.label} {...item} />)}
     </section>
   );
+}
+
+function CoverageDonut({ summary }) {
+  const expected = Number(summary?.resultados_esperados || 0);
+  const launched = Number(summary?.quantidade_resultados || 0);
+  if (!expected) return null;
+  return <DonutChart
+    title="Cobertura dos Resultados"
+    subtitle="Resultados PCT no contexto seleccionado"
+    data={[
+      { label: 'Resultados lançados', value: launched, color: '#22c55e' },
+      { label: 'Sem resultados', value: Math.max(expected - launched, 0), color: '#ef4444' },
+    ]}
+  />;
 }
 
 function groupIndividualRows(rows = []) {
@@ -678,6 +693,7 @@ function PctAnalysisPage() {
         <>
           <Alerts items={analysis.avisos || []} />
           <SummaryCards summary={analysis.resumo} mode={mode} />
+          <CoverageDonut summary={analysis.resumo} />
 
           {hasResults ? (
             <>

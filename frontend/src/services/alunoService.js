@@ -45,3 +45,41 @@ export async function listTurmaOptions() {
 
   return response.data.results || [];
 }
+
+export async function previewAlunoImport({ ficheiro, turma, modo }) {
+  const formData = new FormData();
+  formData.append('ficheiro', ficheiro);
+  formData.append('turma', turma);
+  formData.append('modo', modo);
+  const response = await api.post('/alunos/importar/preview/', formData);
+  return response.data;
+}
+
+export async function confirmAlunoImport({ ficheiro, turma, modo }) {
+  const formData = new FormData();
+  formData.append('ficheiro', ficheiro);
+  formData.append('turma', turma);
+  formData.append('modo', modo);
+  const response = await api.post('/alunos/importar/confirmar/', formData);
+  return response.data;
+}
+
+async function downloadFile(url, filename, params) {
+  const response = await api.get(url, { params, responseType: 'blob' });
+  const objectUrl = URL.createObjectURL(response.data);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
+export function downloadAlunoTemplate() {
+  return downloadFile('/alunos/importar/modelo/', 'modelo_alunos.csv');
+}
+
+export function exportAlunos(filters) {
+  return downloadFile('/alunos/exportar/', 'alunos.csv', filters);
+}

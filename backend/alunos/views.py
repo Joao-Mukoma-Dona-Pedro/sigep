@@ -1,11 +1,20 @@
+import csv
+import io
+
 from django.db.models import Q
+from django.http import HttpResponse
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.response import Response
+from rest_framework import status
 
 from .models import Aluno
 from .serializers import AlunoSerializer
+from .importers import SpreadsheetError, analyse_upload, confirm_upload
 
 
 class AlunoPagination(PageNumberPagination):
@@ -49,3 +58,49 @@ class AlunoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(estado=estado)
 
         return queryset
+
+    def _import_params(self, request):
+        upload = request.FILES.get('ficheiro')
+        if not upload:
+            raise SpreadsheetError('Seleccione um ficheiro CSV ou XLSX.')
+        mode = request.data.get('modo', 'importar')
+        if mode not in {'importar', 'actualizar'}:
+            raise SpreadsheetError('Modo de importação inválido.')
+        return upload, request.data.get('turma'), mode
+
+    @action(detail=False, methods=['post'], url_path='importar/preview', parser_classes=[MultiPartParser, FormParser])
+    def import_preview(self, request):
+        try:
+            result = analyse_upload(*self._import_params(request))
+            result.pop('_turma', None)
+            return Response(result)
+        except SpreadsheetError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='importar/confirmar', parser_classes=[MultiPartParser, FormParser])
+    def import_confirm(self, request):
+        try:
+            return Response(confirm_upload(*self._import_params(request)), status=status.HTTP_201_CREATED)
+        except SpreadsheetError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='importar/modelo')
+    def import_template(self, request):
+        output = io.StringIO()
+        writer = csv.writer(output, delimiter=';')
+        writer.writerow(['Número do aluno', 'Nome completo', 'Nome do encarregado (opcional)', 'Contacto do encarregado (opcional)'])
+        writer.writerow(['001', 'João Manuel Pedro', 'Maria Pedro', '923000000'])
+        response = HttpResponse('\ufeff' + output.getvalue(), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="modelo_alunos.csv"'
+        return response
+
+    @action(detail=False, methods=['get'], url_path='exportar')
+    def export_students(self, request):
+        output = io.StringIO()
+        writer = csv.writer(output, delimiter=';')
+        writer.writerow(['Número do aluno', 'Nome completo', 'Nome do encarregado', 'Contacto do encarregado', 'Turma', 'Classe', 'Ano lectivo', 'Estado'])
+        for aluno in self.filter_queryset(self.get_queryset()):
+            writer.writerow([aluno.numero or '', aluno.nome, aluno.encarregado_educacao, aluno.telefone_encarregado, str(aluno.turma), aluno.turma.classe, aluno.turma.ano_lectivo, aluno.get_estado_display()])
+        response = HttpResponse('\ufeff' + output.getvalue(), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="alunos.csv"'
+        return response

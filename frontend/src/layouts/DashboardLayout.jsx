@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 
 function DashboardLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ function DashboardLayout() {
 
   return (
     <AssistantProvider>
-      <div className={`app-shell ${isCollapsed ? 'is-collapsed' : ''}`}>
+      <div className={`app-shell ${isCollapsed ? 'is-collapsed' : ''} ${isMobileOpen ? 'is-mobile-open' : ''}`}>
         <aside className="sidebar">
           <div className="sidebar-brand">
             <span className="brand-mark">S</span>
@@ -38,12 +39,12 @@ function DashboardLayout() {
           </button>
 
           <nav className="sidebar-nav" aria-label="Módulos do SIGEP">
-            <NavLink to="/dashboard" end title="Dashboard">
+            <NavLink to="/dashboard" end title="Dashboard" onClick={() => setIsMobileOpen(false)}>
               <i className="bi bi-speedometer2" aria-hidden="true" />
               <span className="sidebar-text">Dashboard</span>
             </NavLink>
             {moduleLinks.map((item) => (
-              <NavLink key={item.path} to={item.path} title={item.label}>
+              <NavLink key={item.path} to={item.path} title={item.label} onClick={() => setIsMobileOpen(false)}>
                 <i className={`bi ${item.icon}`} aria-hidden="true" />
                 <span className="sidebar-text">{item.label}</span>
               </NavLink>
@@ -53,8 +54,12 @@ function DashboardLayout() {
 
         <div className="workspace">
           <header className="topbar">
-            <div>
-              <h2>SUBDIRECTOR PEDAGÓGICO</h2>
+            <div className="topbar-leading">
+              <button className="mobile-menu-button" type="button" onClick={() => setIsMobileOpen(true)} aria-label="Abrir menu de navegação"><i className="bi bi-list" /></button>
+              <div>
+                <span className="topbar-role">SUBDIRECTOR PEDAGÓGICO</span>
+                <small>Painel de gestão escolar</small>
+              </div>
             </div>
             <div className="user-menu">
               <div className="user-avatar">{user?.full_name?.charAt(0) || 'S'}</div>
@@ -62,11 +67,11 @@ function DashboardLayout() {
                 <strong>{user?.full_name || 'Subdirector Pedagógico'}</strong>
                 {user?.email && <small>{user.email}</small>}
               </div>
-              <NavLink className="btn btn-outline-secondary btn-sm" to="/configuracoes">
+              <NavLink className="btn btn-outline-secondary btn-sm topbar-action" to="/configuracoes" aria-label="Configurações">
                 <i className="bi bi-gear" aria-hidden="true" />
                 Configurações
               </NavLink>
-              <button className="btn btn-primary btn-sm" type="button" onClick={handleLogout}>
+              <button className="btn btn-outline-secondary btn-sm topbar-action" type="button" onClick={handleLogout}>
                 <i className="bi bi-box-arrow-right" aria-hidden="true" />
                 Sair
               </button>
@@ -83,6 +88,7 @@ function DashboardLayout() {
         </div>
 
         <AssistantWidget />
+        {isMobileOpen && <button className="sidebar-overlay" type="button" aria-label="Fechar menu" onClick={() => setIsMobileOpen(false)} />}
       </div>
     </AssistantProvider>
   );

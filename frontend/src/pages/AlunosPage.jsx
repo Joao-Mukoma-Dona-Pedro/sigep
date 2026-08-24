@@ -2,12 +2,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PageHeader from '../components/ui/PageHeader';
+import AlunoImportModal from '../components/alunos/AlunoImportModal';
 import {
   createAluno,
   deleteAluno,
   listAlunos,
   listTurmaOptions,
   updateAluno,
+  downloadAlunoTemplate,
+  exportAlunos,
 } from '../services/alunoService';
 
 const initialForm = {
@@ -239,6 +242,7 @@ function AlunosPage() {
   const [modalMode, setModalMode] = useState(null);
   const [selectedAluno, setSelectedAluno] = useState(null);
   const [form, setForm] = useState(initialForm);
+  const [importMode, setImportMode] = useState(null);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(pagination.count / 10)), [pagination.count]);
   const classes = useMemo(
@@ -364,17 +368,26 @@ function AlunosPage() {
     setPage(nextPage);
   }
 
+  async function handleDownload(action) {
+    setError('');
+    try { await action(); } catch (requestError) { setError(getErrorMessage(requestError)); }
+  }
+
   return (
     <div className="page-stack">
       <PageHeader
         title="Alunos"
         breadcrumbs={['Alunos']}
-        actions={(
+        actions={(<div className="button-cluster">
+          <button className="btn btn-outline-secondary" type="button" onClick={() => setImportMode('importar')}>Importar Alunos</button>
+          <button className="btn btn-outline-secondary" type="button" onClick={() => setImportMode('actualizar')}>Actualizar por Planilha</button>
+          <button className="btn btn-outline-secondary" type="button" onClick={() => handleDownload(downloadAlunoTemplate)}>Descarregar Modelo</button>
+          <button className="btn btn-outline-secondary" type="button" onClick={() => handleDownload(() => exportAlunos({ search, turma, classe, estado, ordering }))}>Exportar</button>
           <button className="btn btn-primary" type="button" onClick={openCreateModal}>
             <i className="bi bi-plus-lg" />
             Novo Aluno
           </button>
-        )}
+        </div>)}
       />
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -548,6 +561,7 @@ function AlunosPage() {
           isSubmitting={isSubmitting}
         />
       )}
+      {importMode && <AlunoImportModal mode={importMode} turmas={turmas} onClose={() => setImportMode(null)} onComplete={async (text) => { setImportMode(null); setSuccess(text); await loadAlunos(1); }} />}
     </div>
   );
 }
